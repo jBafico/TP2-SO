@@ -1,0 +1,6 @@
+#ifndef SAMPLECODEMODULE_HELP_H
+#define SAMPLECODEMODULE_HELP_H
+
+void help();
+
+#endif //SAMPLECODEMODULE__HELP
