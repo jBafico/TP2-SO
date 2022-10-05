@@ -1,0 +1,4 @@
+#ifndef TP2_SO_MEMMANAGER_H
+#define TP2_SO_MEMMANAGER_H
+
+#endif //TP2_SO_MEMMANAGER_H
