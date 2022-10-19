@@ -110,7 +110,7 @@ void * pvPortMalloc( size_t xWantedSize )
     static BaseType_t xHeapHasBeenInitialised = pdFALSE;
     void * pvReturn = NULL;
 
-    vTaskSuspendAll();
+    vTaskSuspendAll();// todo en nuestro tp va a ver 1 solo core por lo tanto no vamos a tener mas de un proceso al mismo tiempo
     {
         /* If this is the first call to malloc then the heap will require
          * initialisation to setup the list of free blocks. */
@@ -192,7 +192,7 @@ void * pvPortMalloc( size_t xWantedSize )
 
         traceMALLOC( pvReturn, xWantedSize );
     }
-    ( void ) xTaskResumeAll();
+    ( void ) xTaskResumeAll();// todo en nuestro tp va a ver 1 solo core por lo tanto no vamos a tener mas de un proceso al mismo tiempo
 
     #if ( configUSE_MALLOC_FAILED_HOOK == 1 )
         {
@@ -223,14 +223,14 @@ void vPortFree( void * pv )
          * byte alignment warnings. */
         pxLink = ( void * ) puc;
 
-        vTaskSuspendAll();
+        vTaskSuspendAll();// todo en nuestro tp va a ver 1 solo core por lo tanto no vamos a tener mas de un proceso al mismo tiempo
         {
             /* Add this block to the list of free blocks. */
             prvInsertBlockIntoFreeList( ( ( BlockLink_t * ) pxLink ) );
             xFreeBytesRemaining += pxLink->xBlockSize;
             traceFREE( pv, pxLink->xBlockSize );
         }
-        ( void ) xTaskResumeAll();
+        ( void ) xTaskResumeAll();// todo en nuestro tp va a ver 1 solo core por lo tanto no vamos a tener mas de un proceso al mismo tiempo
     }
 }
 /*-----------------------------------------------------------*/
