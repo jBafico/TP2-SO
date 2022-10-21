@@ -1,5 +1,5 @@
-#include "include/printMem.h"
-#include "include/library.h"
+#include "../include/printMem.h"
+#include "../include/library.h"
 #include <stdint.h>
 
 

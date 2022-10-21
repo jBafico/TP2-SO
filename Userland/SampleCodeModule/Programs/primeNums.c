@@ -1,5 +1,5 @@
-#include "include/primeNums.h"
-#include "include/library.h"
+#include "../include/primeNums.h"
+#include "../include/library.h"
 #include <stdint.h>
 
 int isPrime(uint64_t number) {
