@@ -10,6 +10,7 @@
 
 #include <idtLoader.h>
 
+void _timer_tick_handler(void);
 void _irq00Handler(void);
 void _irq01Handler(void);
 void _irq02Handler(void);

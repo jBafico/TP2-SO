@@ -1,5 +1,8 @@
 GLOBAL _cli
 GLOBAL _sti
+
+GLOBAL _timer_tick_handler
+
 GLOBAL picMasterMask
 GLOBAL picSlaveMask
 GLOBAL haltcpu
@@ -16,9 +19,9 @@ GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 GLOBAL _int80Handler
 
-EXTERN irqDispatcher
-EXTERN exceptionDispatcher
-EXTERN _int80Dispatcher
+extern irqDispatcher
+extern exceptionDispatcher
+extern _int80Dispatcher
 
 SECTION .text
 
@@ -115,8 +118,22 @@ picSlaveMask:
 
 
 ;8254 Timer (Timer Tick)
+
 _irq00Handler:
 	irqHandlerMaster 0
+
+_timer_tick_handler:
+	pushState
+
+	mov rdi, rsp ; pasaje de parametro, guardo stack pointer
+	;call scheduler, --> llamar desde aca a nuestro scheduler cuando lo tengamos operativo
+	mov rsp, rax
+
+	;signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
+	popState
+	iretq
 
 ;Keyboard
 _irq01Handler:

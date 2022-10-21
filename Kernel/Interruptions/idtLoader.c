@@ -24,6 +24,7 @@ void load_idt() {
     _cli(); //Desactiva interrupciones mientras configuro IDT
     //Setting up IDT
     //Hardware interrupts
+    //cambiar _irq00Handler por _timer_tick_handler cuando querramos probar el scheduler POSTA
     setup_IDT_entry (0x20, (uint64_t)&_irq00Handler);
     setup_IDT_entry (0x21, (uint64_t)&_irq01Handler);
 
