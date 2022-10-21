@@ -19,9 +19,9 @@ GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 GLOBAL _int80Handler
 
-extern irqDispatcher
-extern exceptionDispatcher
-extern _int80Dispatcher
+EXTERN irqDispatcher
+EXTERN exceptionDispatcher
+EXTERN _int80Dispatcher
 
 SECTION .text
 
