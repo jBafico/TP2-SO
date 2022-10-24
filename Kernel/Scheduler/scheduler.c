@@ -32,7 +32,6 @@ void runCurrentTask(){
 void runTasks(){
     uint8_t exit = 0, c;
     while ((c = getCharKernel()) != EXIT_KEY){
-
         if(c == STOP_FIRST)
             removeTask(STOP_FIRST);
         else if(c == STOP_SECOND)
@@ -42,7 +41,6 @@ void runTasks(){
             runCurrentTask();
             currentTask++;
         }
-
         currentTask = 0;
     }
 }
