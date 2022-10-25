@@ -41,5 +41,5 @@ void removeTask(uint8_t task);
 void removeCurrentTask();
 void runCurrentTask();
 void runTasks();
-
+void * schedule();
 #endif //SCHEDULER_H

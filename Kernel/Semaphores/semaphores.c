@@ -160,5 +160,5 @@ static void unblockSemProcess(semaphore *sem) {
         sem->blockedProcesses[i] = sem->blockedProcesses[i + 1];
     }
     sem->blockedProcessesAmount--;
-    readyProcess(PID); //TODO reanudar el processo en el sched
+    resumeProcess(PID); //TODO reanudar el processo en el sched
 }

@@ -29,14 +29,14 @@
 #if( configSUPPORT_DYNAMIC_ALLOCATION == 1 )
 #warning The configHEAP_ALLOCATION_SCHEME is not defined in FreeRTOSConfig
 #endif
-#else
-#if(configHEAP_ALLOCATION_SCHEME == HEAP_ALLOCATION_TYPE2)
-
-#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
-
-#if ( configSUPPORT_DYNAMIC_ALLOCATION == 0 )
-    #error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
-#endif
+//#else
+//#if(configHEAP_ALLOCATION_SCHEME == HEAP_ALLOCATION_TYPE2)
+//
+//#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+//
+//#if ( configSUPPORT_DYNAMIC_ALLOCATION == 0 )
+//    #error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
+//#endif
 
 /* A few bytes might be lost to byte aligning the heap start address. */
 #define configADJUSTED_HEAP_SIZE    ( configTOTAL_HEAP_SIZE - portBYTE_ALIGNMENT )
@@ -44,11 +44,11 @@
 /*
  * Initialises the heap structures before their first use.
  */
-static void prvHeapInit( void );
 
+#define configTOTAL_HEAP_SIZE ( 0x600000 - 0x800000 )
+static void prvHeapInit( void );
 /* Allocate the memory for the heap. */
 #if ( configAPPLICATION_ALLOCATED_HEAP == 1 )
-
 /* The application writer has already defined the array used for the RTOS
 * heap - probably so it can be placed in a special segment or address. */
     extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
