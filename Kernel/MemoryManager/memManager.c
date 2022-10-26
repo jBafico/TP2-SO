@@ -15,7 +15,7 @@ typedef union header {  //Block Header
 
 } Header;
 
-static Header base;     // empty list to initialize
+static Header * base;     // empty list to initialize
 static Header * freePtr=NULL;   // Start of the next free Node
 size_t totalUnits;
 
@@ -25,11 +25,11 @@ void initMemMan(char *heapBase, size_t heapSize) {
     }
     totalUnits = (heapSize + sizeof(Header) - 1) / sizeof(Header) + 1;
     freePtr = base = (Header *)heapBase;
-    freeNode->data.size = totalUnits;
-    freeNode->data.ptr = freePtr;
+    freePtr->data.size = totalUnits;
+    freePtr->data.ptr = freePtr;
 }
 
-void *malloc(uint64_t nBytes) {
+void * malloc(uint64_t nBytes) {
     Header *currentNode, *prevPtr;
     size_t nUnits;
     void *ret;
@@ -71,7 +71,7 @@ void free(void *block) {
     freeBlock = (Header *)block - 1;
 
     if (freeBlock < base ||
-        freeBlock >= (base + total_units * sizeof(Header))) {
+        freeBlock >= (base + totalUnits * sizeof(Header))) {
         return;
     }
 
@@ -79,7 +79,7 @@ void free(void *block) {
 
     bool found = false; //flag to check if block to free is in mem
 
-    for (currentNode = free_node;
+    for (currentNode = freePtr;
          !(freeBlock > currentNode && freeBlock < currentNode->data.ptr);
          currentNode = currentNode->data.ptr) {
         if (freeBlock == currentNode || freeBlock == currentNode->data.ptr) {
