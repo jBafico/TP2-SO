@@ -1,7 +1,7 @@
-#include <stdint.h>
-
 #ifndef NAIVE_CONSOLE_H
 #define NAIVE_CONSOLE_H
+
+#include <stdint.h>
 
 #define NULL (void *) 0
 

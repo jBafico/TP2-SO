@@ -1,10 +1,10 @@
 #include <stdint.h>
-#include "naiveConsole.h"
-#include "keyboard.h"
-#include "lib.h"
-#include "time.h"
-#include "scheduler.h"
-#include "memManager.h"
+#include <naiveConsole.h>
+#include <keyboard.h>
+#include <lib.h>
+#include <time.h>
+#include <scheduler.h>
+#include <memManager.h>
 
 #define SYS_READ 0
 #define SYS_WRITE 1
@@ -124,15 +124,13 @@ void sys_task(commandPointer function){
     addTask(function);
 }
 
-
-
 void * malloc_handler(uint64_t size){
-    return pvPortMalloc( (size_t) size);
+    return malloc( (size_t) size);
     
 }
 
 void free_handler(void * ptr){
-    vPortFree(ptr);
+    free(ptr);
 }
 
 int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
@@ -142,7 +140,7 @@ int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2)
         case SYS_WRITE: //arg0: fd , arg1: buff, arg2: length
             return sys_write( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
         case MALLOC:
-            return malloc_handler(arg0);
+            return (int) malloc_handler(arg0);
         case FREE:
             free_handler((void *) arg0);
             break;

@@ -1,4 +1,4 @@
-#include "../include/memManager.h"
+#include <memManager.h>
 
 
 //Implementation Based on K&R Book

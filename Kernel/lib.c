@@ -1,9 +1,7 @@
 #include <stdint.h>
-#include "/include/lib.h"
+#include <lib.h>
 
-#define UTC -3
-
-extern int getHour();
+#define UTC (-3)
 
 uint8_t getHourUTC(){
     uint8_t hoursUTC = getHour();
@@ -66,11 +64,11 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	return destination;
 }
 
-void acquire(int *lock) {
-    while (_xchg(lock, 1) != 0)
-        ;
-}
-
-void release(int *lock) {
-    _xchg(lock, 0);
-}
+//void acquire(int *lock) {
+//    while (_xchg(lock, 1) != 0)
+//        ;
+//}
+//
+//void release(int *lock) {
+//    _xchg(lock, 0);
+//}

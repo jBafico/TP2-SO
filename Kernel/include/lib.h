@@ -20,7 +20,7 @@ uint64_t * prepareRegisters();
 
 void acquire(int *lock);
 void release(int *lock);
-int _xchg();
+//int _xchg();
 
 uint8_t getByte(uint64_t address);
 

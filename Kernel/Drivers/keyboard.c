@@ -1,7 +1,7 @@
 #include <lib.h>
 #include <naiveConsole.h>
-#include "keyboard.h"
-#include "int80Dispatcher.h"
+#include <keyboard.h>
+#include <int80Dispatcher.h>
 
 #define MAX_BUFF 512
 
