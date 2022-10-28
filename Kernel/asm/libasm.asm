@@ -11,6 +11,11 @@ GLOBAL getYear
 GLOBAL prepareRegisters
 GLOBAL getByte
 
+GLOBAL restartSCM
+
+EXTERN getStackBase
+EXTERN runSampleCodeModule
+
 section .text
 	
 cpuVendor:
@@ -83,13 +88,13 @@ getKey:
     pop rbp
     ret
 
-; retorna (creo) el byte en la posicion edi, que es el unico argumento de la función
+
 getByte:
     push rbp
     mov rbp, rsp
 
     mov rax, 0      ; no se si hace falta
-    mov al, [edi]
+    mov al, [rdi]
 
     mov rsp, rbp
     pop rbp
@@ -107,7 +112,8 @@ prepareRegisters:
     mov [GPRv + 4 * 8], rbp
     mov [GPRv + 5 * 8], rsi
     mov [GPRv + 6 * 8], rdi
-    mov [GPRv + 7 * 8], rsp
+    mov rax, [rsp+8*18] ;RSP
+    mov [GPRv + 7 * 8], rax
     mov [GPRv + 8 * 8], r8
     mov [GPRv + 9 * 8], r9
     mov [GPRv + 10 * 8], r10
@@ -116,13 +122,20 @@ prepareRegisters:
     mov [GPRv + 13 * 8], r13
     mov [GPRv + 14 * 8], r14
     mov [GPRv + 15 * 8], r15
+    mov rax, [rsp+8*15] ;RIP
+    mov [GPRv + 16 * 8], rax
 
     mov rax, GPRv
     ret
 
+restartSCM:
+    call getStackBase	        ; Get thet stack address
+	mov rsp, rax				; Set up the stack with the returned address
+	call runSampleCodeModule
+
 
 section .bss
-    GPRv resq 16
+    GPRv resq 17
 
 
 

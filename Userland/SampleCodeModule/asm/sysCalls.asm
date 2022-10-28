@@ -4,7 +4,9 @@ GLOBAL sysTime
 GLOBAL sysClearScreen
 GLOBAL sysPrintMem
 GLOBAL sysInfoReg
-GLOBAL sysHasTicked
+GLOBAL sysSleep
+GLOBAL sysTask
+GLOBAL sysRunTasks
 
 section .data
     SYSREAD equ 0
@@ -12,7 +14,9 @@ section .data
     SYSCLEARSCREEN equ 69
     SYSPRINTMEM equ 70
     SYSINFOREG equ 71
-    SYSHASTICKED equ 72
+    SYSSLEEP equ 72
+    SYSTASK equ 73
+    SYSRUNTASKS equ 74
     SYSTIME equ 201
 
 section .text
@@ -84,17 +88,40 @@ sysClearScreen:
       mov rbp, rsp
       mov rax, SYSPRINTMEM
 
-          ;en rdi tengo la direccion de mem
+          ;en rdi tengo la direccion de mem, en rsi address
 
       int 80h
       mov rsp, rbp
       pop rbp
       ret
 
-sysHasTicked:
+sysSleep:
     push rbp
     mov rbp, rsp
-    mov rax, SYSHASTICKED
+    mov rax, SYSSLEEP
+
+    int 80h
+    mov rsp, rbp
+    pop rbp
+    ret
+
+sysTask:
+    push rbp
+    mov rbp, rsp
+    mov rax, SYSTASK
+    ;en rdi ya tengo el puntero a la task
+    ;en rsi tengo el tipo de dato, 1 si con arg no ciclica,
+
+    int 80h
+    mov rsp, rbp
+    pop rbp
+    ret
+
+
+sysRunTasks:
+    push rbp
+    mov rbp, rsp
+    mov rax, SYSRUNTASKS
 
     int 80h
     mov rsp, rbp

@@ -13,7 +13,7 @@ typedef struct clock{
 }clock;
 
 void timer_handler();
-int ticks_elapsed();
-int seconds_elapsed();
+uint64_t ticks_elapsed();
+uint64_t seconds_elapsed();
 
 #endif

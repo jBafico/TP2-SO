@@ -82,6 +82,11 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
+void runSampleCodeModule(){
+    load_idt();
+    ((EntryPoint)sampleCodeModuleAddress)();
+}
+
 int main()
 {
     load_idt();
@@ -108,7 +113,7 @@ int main()
     ncNewline();
     ncPrint("Press ENTER to enter SHELL");
 
-    while (getKey() != ENTER);
+    while (getKey() != ENTER); //Se consume hasta el \n
 
     ncClear();
     ((EntryPoint)sampleCodeModuleAddress)();

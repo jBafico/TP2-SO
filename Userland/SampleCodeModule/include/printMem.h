@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void printMem(char* str);
+void printMem(char * str, uint8_t fd);
 
 #endif //SAMPLECODEMODULE_PRINTMEM_H

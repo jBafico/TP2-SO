@@ -1,17 +1,19 @@
-#include "library.h"
-#include "shell.h"
+#include <library.h>
+#include <shell.h>
+#include <help.h>
+
 #define TRUE 1
 #define FALSE !TRUE
 
 static int firstEntry = TRUE;
 
 int main() {
-    //esta va a ser mi shell
-    //consumo hasta el newline
+    if(firstEntry){
+        printk("OMG USER HI!! Welcome to the LettuceOS Shell!\n\n");
+        help(STDOUT);
+    }
 
-    printk("ranita OS shell\n");
-
-    while ( firstEntry && getChar() != '\n')
+    while (firstEntry && getChar() != '\n')
         ;
 
     firstEntry = FALSE;

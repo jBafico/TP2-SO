@@ -10,5 +10,5 @@ typedef struct clock{
     uint16_t year;
 }clock;
 
-void time();
+void time(uint8_t fd);
 #endif //SAMPLECODEMODULE_TIME_H

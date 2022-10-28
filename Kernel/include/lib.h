@@ -16,11 +16,9 @@ uint8_t getDayOfMonth();
 uint8_t getMonth();
 uint8_t getYear();
 
-uint64_t * prepareRegisters();
+void restartSCM();
 
-void acquire(int *lock);
-void release(int *lock);
-//int _xchg();
+uint64_t * prepareRegisters();
 
 uint8_t getByte(uint64_t address);
 

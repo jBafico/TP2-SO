@@ -2,6 +2,7 @@
 #include <naiveConsole.h>
 #include <keyboard.h>
 #include <int80Dispatcher.h>
+#include <scheduler.h>
 
 #define MAX_BUFF 512
 
@@ -13,7 +14,7 @@ static char kbd_US [CANT_KEYS] =
                 0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
                 '\t', /* <-- Tab */
                 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
-                0, /* <-- control key */
+                13, /* <-- control key */
                 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`',  0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/',   0,
                 '*',
                 0,  /* Alt */
@@ -98,19 +99,33 @@ void ncPrintKeyShift(uint16_t code){
     }
 }
 
+//static uint8_t ctrlFlag=FALSE;
 static uint8_t shiftFlag = 0;
+
 void keyboard_handler(){
     uint16_t teclahex = getKey();
     if(teclahex == RSHIFT || teclahex == LSHIFT)
         shiftFlag = 1;
     else if(teclahex == (RSHIFT + RELEASE) || teclahex == (LSHIFT + RELEASE)) //Ambos release shifts del teclado
         shiftFlag = 0;
-    else if ( teclahex < RELEASE) {
-         if (shiftFlag == 0) {
-            keyboardBuffer[writer++] = kbd_US[teclahex];
-        } else {
+//    else if(teclahex == CONTROL)
+//        ctrlFlag=TRUE;
+//    else if(teclahex == (CONTROL+RELEASE))
+//        ctrlFlag=FALSE;
+//    else if(teclahex == ESCAPE)
+//        setStopFlag(STOP_ALL);
+    else if (teclahex < RELEASE) {
+        if(kbd_US[teclahex] != 0) {
+            if (shiftFlag == 0)
+                keyboardBuffer[writer++] = kbd_US[teclahex];
+            else
                 keyboardBuffer[writer++] = shift_kbd_US[teclahex];
-            }
+
+//            if(teclahex == ONE)
+//                setStopFlag(STOP_FIRST);
+//            else if(teclahex == TWO)
+//                setStopFlag(STOP_SECOND);
+        }
     }
     writer %= MAX_BUFF;
 }
@@ -121,14 +136,14 @@ char * getBuffer(int * writerVal){
     return keyboardBuffer;
 }
 
-char getCharKernel(){
+void cleanKeyboardBuffer(){
     char c;
-    int rta;
-    do {
-        rta = sys_read(STDIN,&c, 1);
-    } while ( rta != 1 );
-    return c;
+    while (sys_read(STDIN, &c, 1)!=-1);
 }
+
+//int getCtrlFlag(){
+//    return ctrlFlag;
+//}
 
 
 
