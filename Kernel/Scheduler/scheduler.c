@@ -299,9 +299,17 @@ static processNode *getProcess(uint64_t pid) {
     return NULL;
 }
 // MEM FUNCITONS
-static void freeProcess(processNode *p) {
-    //TODO FREE PROCESS
+static void freeProcess(processNode *process) {
+    if(process != NULL){
+        for (int i = 0; i < process->process.argc; i++) {
+            free(process->process.argv[i]);
+        }
+        free((void *)((char *)process->process.processBP - SIZE_OF_STACK + 1));
+        free(process->process.argv);
+        free((void *)process);
+    }
 }
+
 // QUEUE FUNCITONS
 void queueProcess(processList *processes, processNode *process) {
     if (queueIsEmpty(processes)) {
@@ -339,78 +347,5 @@ processNode *dequeueProcess(processList *processes) {
 int queueIsEmpty(processList *processes) {
     return processes->size == 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//static commandPointer tasks[MAX_TASKS];
-//static uint8_t cantTasks = 0;
-//static uint8_t currentTask = 0;
-//
-//void addTask(commandPointer function){
-//    if(cantTasks >= MAX_TASKS)
-//        return;
-//    tasks[cantTasks++] = function;
-//}
-//
-//void removeTask(uint8_t task){
-//    if(task<=0 || task > MAX_TASKS)
-//        return;
-//    tasks[task-1] = NULL;
-//}
-//
-//void removeCurrentTask(){
-//    if(cantTasks == 0)
-//        return;
-//    tasks[currentTask] = NULL;
-//    cantTasks--;
-//}
-//
-//void runCurrentTask(){
-//    if(tasks[currentTask] != NULL)
-//        tasks[currentTask](); //TODO ver si aca le pasamos parametro desde kernel o armamos dos wrappers extra en userland
-//}
-//
-//void runTasks(){
-//    uint8_t exit = 0, c;
-//    while ((c = getCharKernel()) != EXIT_KEY){
-//        if(c == STOP_FIRST)
-//            removeTask(STOP_FIRST);
-//        else if(c == STOP_SECOND)
-//            removeTask(STOP_SECOND);
-//
-//        while(currentTask < cantTasks){
-//            runCurrentTask();
-//            currentTask++;
-//        }
-//        currentTask = 0;
-//    }
-//}
-//
-//
 
 
