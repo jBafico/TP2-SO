@@ -6,7 +6,14 @@
 #include <stdint.h>
 
 
-void initMemMan(char *heapBase, size_t heapSize);
+typedef struct info {
+    uint64_t availableBytes;
+    uint64_t allocatedBytes;
+    uint64_t totalMemory
+} memInfo;
+
+
+void initMemMan(void *heapBase, size_t heapSize);
 void * malloc(uint64_t nBytes);
 void free(void *block);
 

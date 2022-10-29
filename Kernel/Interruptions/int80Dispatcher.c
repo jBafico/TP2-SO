@@ -156,12 +156,12 @@ int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2,
             return sys_mem((uint8_t *) arg0, (uint64_t) arg1);
 //        case SYS_TASK:
 //            sys_task((void *) arg0, (uint8_t) arg1);
-            break;
+            //break;
 //        case SYS_RUNTASKS:
 //            sys_run();
-            break;
+            //break;
 //        case SYS_REGISTERS:
 //            return sys_registers( (uint64_t *) arg0);
-    }
-    return 0;
+        }
+        return 0;
 }

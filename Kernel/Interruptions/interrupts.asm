@@ -18,6 +18,8 @@ GLOBAL _int80Handler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
+
+EXTERN schedule
 EXTERN _int80Dispatcher
 ;EXTERN getCtrlFlag
 ;EXTERN saveRegisters
@@ -256,7 +258,7 @@ _timer_tick_handler:
 	pushState
 
 	mov rdi, rsp ; pasaje de parametro, guardo stack pointer
-	;call scheduler, --> llamar desde aca a nuestro scheduler cuando lo tengamos operativo
+	call schedule, ;--> llamar desde aca a nuestro scheduler cuando lo tengamos operativo
 	mov rsp, rax
 
 	;signal pic EOI (End of Interrupt)

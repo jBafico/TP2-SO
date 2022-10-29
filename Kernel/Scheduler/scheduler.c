@@ -10,17 +10,40 @@ static processNode *currentProcess = NULL;
 static processNode *baseProcess;        //This is the process that will be running when there are no task to be executed
 
 
+#define BACKGROUND 0
+#define FOREGROUND 1
+
 static int queueIsEmpty(processList *processes);
 static processNode *dequeueProcess(processList *processes);
 static void queueProcess(processList *processes, processNode *process);
-static int initializeProcessControlBlock(process *process, char *name,
-                                         uint8_t foreground, int *fd);
+static int initializeProcessControlBlock(process *process, char *name, uint8_t foreground, int *fd);
 static uint64_t getPID();
 static int getArguments(char **to, char **from, int count);
 
-        static void freeProcess(processNode *p);
+static void freeProcess(processNode *p);
 static processNode *getProcess(uint64_t pid);
 
+
+int strlen(char * s){
+    int i;
+    for ( int i = 0 ; s[i] != 0 ; i++)
+        ;
+    return i;
+}
+
+int strcpy(char * dest, char * src){
+    for (int i = 0; src[i] != 0 ; i++){
+        dest[i] = src[i];
+    }
+}
+
+
+
+void init(int argc, char ** argv){
+    while(1){
+        _hlt();
+    }
+}
 
 void initializeScheduler() {
     processes = malloc(sizeof(processList));
@@ -33,12 +56,10 @@ void initializeScheduler() {
     processes->readySize = 0;
     processes->size = 0;
 
-    /*char *argv[] = {"Initial BASE Process"};
-
-   newProcess(&baseProcess, 1, argv, BACKGROUND, 0); TODO setear el base process
-
+    char *argv[] = {"Init"};
+    addProcess( &init, 1, argv, BACKGROUND, 0); //TODO setear el base process
     baseProcess = dequeueProcess(processes);
-     */
+
 }
 
 void * schedule(void * rsp){
@@ -47,9 +68,7 @@ void * schedule(void * rsp){
             cyclesLeft--;
             return rsp;
         }
-
         currentProcess->process.processSP = rsp;
-
         if (currentProcess->process.pid != baseProcess->process.pid) {
             if (currentProcess->process.state == TERMINATED) {
                 processNode * parent = getProcess(currentProcess->process.ppid);
@@ -96,8 +115,7 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
         return -1;
     }
 
-    if (initializeProcessControlBlock(&newProcess->process, argv[0], foreground,
-                                      fd) == -1) {
+    if (initializeProcessControlBlock(&newProcess->process, argv[0], foreground,fd) == -1) {
         free(newProcess);
         return -1;
     }
@@ -118,7 +136,7 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
     newProcess->process.argv = arguments;
 
     //TODO initialice stack frame for the new process
-
+    initalizeDecieveStack(entryPoint,argc,argv,newProcess->process.processBP);
     newProcess->process.state = READY;
 
     queueProcess(processes, newProcess);
@@ -170,8 +188,7 @@ void wait(int pid) {
 }
 
 // INITIALIZERS
-static int initializeProcessControlBlock(process *process, char *name,
-                                         uint8_t foreground, int *fd) {
+static int initializeProcessControlBlock(process *process, char *name,uint8_t foreground, int *fd) {
     strcpy(process->name, name);//TODO have to cpy name
     process->pid = getPID();
     process->ppid = (currentProcess == NULL ? 0 : currentProcess->process.pid);
@@ -191,9 +208,9 @@ static int initializeProcessControlBlock(process *process, char *name,
     if (process->processBP == NULL) {
         return -1;
     }
-
+    //TODO CHEQUEAR ALINEAMIENTO
     process->processBP = (void *)((char *)process->processBP + SIZE_OF_STACK - 1);
-    process->processSP = ;//TODO GET THE STACK POINTER
+    //process->processSP = (void *)(());//TODO GET THE STACK POINTER
     return 0;
 }
 

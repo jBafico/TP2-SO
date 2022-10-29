@@ -15,11 +15,14 @@ typedef union header {  //Block Header
 
 } Header;
 
+
+memInfo currentMemInfo;
+
 static Header * base;     // empty list to initialize
 static Header * freePtr=NULL;   // Start of the next free Node
 size_t totalUnits;
 
-void initMemMan(char *heapBase, size_t heapSize) {
+void initMemMan(void *heapBase, size_t heapSize) {
     if (heapBase == NULL) {
         return;
     }
@@ -27,6 +30,10 @@ void initMemMan(char *heapBase, size_t heapSize) {
     freePtr = base = (Header *)heapBase;
     freePtr->data.size = totalUnits;
     freePtr->data.ptr = freePtr;
+
+    currentMemInfo.allocatedBytes = 0;
+    currentMemInfo.availableBytes = totalUnits;
+    currentMemInfo.totalMemory = heapSize;
 }
 
 void * malloc(uint64_t nBytes) {
@@ -52,6 +59,10 @@ void * malloc(uint64_t nBytes) {
             freePtr = prevPtr;
             ret = currentNode + 1;
             allocFlag = false;  //Finished allocating
+
+            //contabilizamos uso de heap
+            currentMemInfo.allocatedBytes += nUnits;
+            currentMemInfo.availableBytes -= nUnits;
         }
         if (currentNode == freePtr) {
             return NULL;
@@ -66,7 +77,6 @@ void free(void *block) {
     if (block == NULL) {
         return;
     }
-
     Header *freeBlock, *currentNode;
     freeBlock = (Header *)block - 1;
 
@@ -79,16 +89,16 @@ void free(void *block) {
 
     bool found = false; //flag to check if block to free is in mem
 
-    for (currentNode = freePtr;
-         !(freeBlock > currentNode && freeBlock < currentNode->data.ptr);
-         currentNode = currentNode->data.ptr) {
-        if (freeBlock == currentNode || freeBlock == currentNode->data.ptr) {
-            return;
-        }
-        if (currentNode >= currentNode->data.ptr &&
-            (freeBlock > currentNode || freeBlock < currentNode->data.ptr)) {
-            found = true;   //block found
-            break; // Frees start and end of the block
+    for (currentNode = freePtr; !(freeBlock > currentNode && freeBlock < currentNode->data.ptr);currentNode = currentNode->data.ptr) 
+        {
+            if (freeBlock == currentNode || freeBlock == currentNode->data.ptr) {
+                return;
+            }
+            //detecto bloque a liberar en memoria, comparo punteros hacia direcciones altas de memoria y me fijo
+            //que el bloque en cuestion este encerrado alli
+            if (currentNode >= currentNode->data.ptr && (freeBlock > currentNode || freeBlock < currentNode->data.ptr)) {
+                found = true;   //block found
+                break; // Frees start and end of the block
         }
     }
 
@@ -117,4 +127,13 @@ void free(void *block) {
     }
 
     freePtr = currentNode;
+}
+
+
+
+void * memoryInformation(memInfo * m){
+    m->allocatedBytes = currentMemInfo.allocatedBytes;
+    m->availableBytes = currentMemInfo.availableBytes;
+    m->totalMemory = currentMemInfo.totalMemory;
+
 }

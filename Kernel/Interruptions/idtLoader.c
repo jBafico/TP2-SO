@@ -24,9 +24,9 @@ void load_idt() {
     _cli(); //Desactiva interrupciones mientras configuro IDT
     //Setting up IDT
     //Hardware interrupts
-    setup_IDT_entry (0x20, (uint64_t)&_irq00Handler);
+    //va a ahber que cambiarla por timer_tick_handler --> cuando viene tt se llama a scheduler
+    setup_IDT_entry (0x20, (uint64_t)&_timer_tick_handler);
     setup_IDT_entry (0x21, (uint64_t)&_irq01Handler);
-
     //Exceptions
     setup_IDT_entry (0x00, (uint64_t)&_exception0Handler);
     setup_IDT_entry (0x06, (uint64_t)&_exception6Handler);

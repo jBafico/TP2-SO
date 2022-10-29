@@ -5,6 +5,8 @@
 #include <naiveConsole.h>
 #include <keyboard.h>
 #include <idtLoader.h>
+#include <memManager.h>
+#include <scheduler.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -87,9 +89,21 @@ void runSampleCodeModule(){
     ((EntryPoint)sampleCodeModuleAddress)();
 }
 
+
+
+
+void dummy1(int argc, char ** argv){
+	while(1)
+	ncPrintChar("1");
+}
+
+void dummy2(int argc, char ** argv){
+	while(1)
+	ncPrintChar('2');
+}
+
 int main()
 {
-    load_idt();
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
@@ -113,10 +127,16 @@ int main()
     ncNewline();
     ncPrint("Press ENTER to enter SHELL");
 
-    while (getKey() != ENTER); //Se consume hasta el \n
-
-    ncClear();
-    ((EntryPoint)sampleCodeModuleAddress)();
-
+	ncClear();	
+	initMemMan((void *)0x600000,0x800000 - 0x600000);
+	initializeScheduler();
+	char *argv[] = {"d1"};
+	char * argv2[] = {"d2"};
+	int fd[] = {STDIN,STDOUT};
+	addProcess(dummy1,1,argv,1,fd);
+	//addProcess(dummy2,1,argv2,1,fd);
+	load_idt();
+    //while (getKey() != ENTER); //Se consume hasta el \n
+	_hlt();
 	return 0;
 }
