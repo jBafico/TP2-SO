@@ -22,7 +22,7 @@ EXTERN exceptionDispatcher
 EXTERN schedule
 EXTERN _int80Dispatcher
 ;EXTERN getCtrlFlag
-;EXTERN saveRegisters
+EXTERN saveRegisters
 
 GLOBAL _timer_tick_handler
 GLOBAL _xchg

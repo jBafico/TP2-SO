@@ -7,6 +7,7 @@
 #include <idtLoader.h>
 #include <memManager.h>
 #include <scheduler.h>
+#include <interrupts.h>
 
 extern uint8_t text;
 extern uint8_t rodata;

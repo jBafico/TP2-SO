@@ -3,8 +3,6 @@
 #ifndef NAIVE_CONSOLE_H
 #define NAIVE_CONSOLE_H
 
-#define NULL (void *) 0
-
 enum colorAttributes{Black = 0,
     Blue = 1,
     Green = 2,
@@ -61,6 +59,5 @@ void ncPrintHexFdAttribute(uint8_t fd, uint64_t value, int color, int backColor)
 void ncPrintBase(uint64_t value, uint32_t base);
 void ncPrintBaseFdAttribute(uint8_t fd, uint64_t value, uint32_t base, int color, int backColor);
 void ncPrintBin(uint64_t value);
-
 
 #endif

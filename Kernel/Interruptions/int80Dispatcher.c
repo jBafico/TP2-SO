@@ -4,6 +4,9 @@
 #include <lib.h>
 #include <time.h>
 #include <scheduler.h>
+#include <memManager.h>
+#include <semaphores.h>
+#include <pipe.h>
 #include <interrupts.h>
 
 #define CANTBYTES 32
@@ -18,8 +21,25 @@ enum sysCalls{  SYS_READ = 0,
                 SYS_MEM = 70,
                 SYS_REGISTERS = 71,
                 SYS_SLEEP = 72,
-                SYS_TASK = 73,
-                SYS_RUNTASKS = 74,
+                SYS_MALLOC=74,
+                SYS_FREE=75,
+                SYS_ADD_PROCESS= 76,
+                SYS_WAIT=77,
+                SYS_KILL_PROCESS= 78,
+                SYS_GET_PID=79,
+                SYS_BLOCK_PROCESS=80,
+                SYS_SET_STATE=81,
+                SYS_SET_PRIO=82,
+                SYS_READY_PROCESS=83,
+                SYS_SEM_WAIT=84,
+                SYS_SEM_OPEN=85,
+                SYS_SEM_POST=86,
+                SYS_SEM_CLOSE=87,
+                SYS_SEM_STATUS=88,
+                SYS_PIPE_OPEN=89,
+                SYS_PIPE_CLOSE=90,
+                SYS_PIPE_WRITE=91,
+                SYS_PIPE_READ=92,
                 SYS_TIME = 201};
 
 #define NO_ARG_TASK 1
@@ -113,7 +133,7 @@ void sys_clearscreen(){
 }
 
 //int sys_registers(uint64_t regs[]){
-//    return getRegisters(regs);
+//return getRegisters(regs);
 //}
 
 int sys_mem(uint8_t * mem, uint64_t address){
@@ -128,16 +148,10 @@ int sys_mem(uint8_t * mem, uint64_t address){
     return 0;
 }
 
-//void sys_task(void * str, uint8_t flag){
-//    addTask(str, flag);
-//}
-
-//void sys_run(){
-//    runTasks();
-//}
-
+//TODO ESTO NO TIENE QUE DEVOLVER INT XQ AHORA HAY CASOS DE DEVOLVER VOID *
 int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
     _sti();
+    int FD[]={STDIN, STDOUT};
     switch (code) {
         case SYS_READ: //arg0: fd , arg1: buff, arg2: length
             return sys_read( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
@@ -154,14 +168,51 @@ int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2,
             break;
         case SYS_MEM:  //arg0: uint8_t * mem, array de 32 lugares de 8bits, arg1: uint64_t address, direc para buscar
             return sys_mem((uint8_t *) arg0, (uint64_t) arg1);
-//        case SYS_TASK:
-//            sys_task((void *) arg0, (uint8_t) arg1);
-            //break;
-//        case SYS_RUNTASKS:
-//            sys_run();
-            //break;
-//        case SYS_REGISTERS:
-//            return sys_registers( (uint64_t *) arg0);
+            break;
+            //case SYS_REGISTERS:
+            //return sys_registers( (uint64_t *) arg0);
+        case SYS_MALLOC:
+            return malloc((uint64_t) arg0);
+        case SYS_FREE:
+            free((void*) arg0);
+            break;
+        case SYS_ADD_PROCESS:
+            return addProcess((void(*)(int, char**))arg0, (int) arg1, (char**) arg2, (int) arg3, FD);
+        case SYS_WAIT:
+            wait((int) arg0);
+            break;
+        case SYS_KILL_PROCESS:
+            return killProcess((uint64_t) arg0);
+        case SYS_GET_PID:
+            return getProcessPID();
+        case SYS_BLOCK_PROCESS:
+            return blockProcess((uint64_t) arg0);
+        case SYS_SET_STATE:
+            return setState((uint64_t) arg0, (pState) arg1);
+        case SYS_SET_PRIO:
+            setPriority((uint64_t) arg0, (int) arg1);
+            break;
+        case SYS_READY_PROCESS:
+            return readyProcess((uint64_t) arg0);
+        case SYS_SEM_WAIT:
+            return semWait((uint32_t) arg0);
+        case SYS_SEM_CLOSE:
+            return semClose((uint32_t) arg0);
+        case SYS_SEM_OPEN:
+            return semOpen((uint32_t) arg0, (uint64_t) arg1);
+        case SYS_SEM_POST:
+            return semPost((uint32_t) arg0);
+        case SYS_SEM_STATUS:
+            semStatus();
+            break;
+        case SYS_PIPE_OPEN:
+            return pipeOpen((int)arg0);
+        case SYS_PIPE_CLOSE:
+            return pipeClose((int) arg0);
+        case SYS_PIPE_READ:
+            return pipeRead((int)arg0);
+        case SYS_PIPE_WRITE:
+            return pipeWrite((int) arg0, (char *) arg1);
         }
         return 0;
 }

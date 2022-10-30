@@ -9,7 +9,7 @@ typedef enum {READY, BLOCKED, TERMINATED} pState;
 
 typedef struct process{
     int pid;                   /* ID of the process */
-    int ppid;                   /* ID of the parent process */
+    int ppid;                  /* ID of the parent process */
     int prio;                  /* process priority */
     int foreground;            /* states if it is a foreground or background process */
     pState state;              /* State of the process */
@@ -32,7 +32,6 @@ typedef struct processList{
     processNode * first;
     processNode * last;
 }processList;
-
 
 
 typedef struct {
@@ -64,11 +63,12 @@ typedef struct {
 
 } decieveStack;
 
-#define NULL (void *) 0
 #define SIZE_OF_STACK (4 * 1024)
 #define MAX_PRIORITY 40
 #define BACKGROUND_PRIORITY_DEFAULT 1
 #define FOREGROUND_PRIORITY_DEFAULT 2
+#define BACKGROUND 0
+#define FOREGROUND 1
 
 
 #define STOP_FIRST 1
@@ -77,13 +77,6 @@ typedef struct {
 #define EXIT_KEY 28 //ASCII para la tecla de ESC
 
 typedef void (*commandPointer)(void);
-
-void addTask(commandPointer function);
-void removeTask(uint8_t task);
-void removeCurrentTask();
-void runCurrentTask();
-void runTasks();
-
 
 void * schedule();
 void initializeScheduler();

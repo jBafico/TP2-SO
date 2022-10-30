@@ -1,6 +1,7 @@
-#include "../include/scheduler.h"
-#include "../include/keyboard.h"
-#include "../include/memManager.h"
+#include <scheduler.h>
+#include <keyboard.h>
+#include <memManager.h>
+#include <interrupts.h>
 
 static uint64_t currentPID = 0;
 static uint64_t cyclesLeft;
@@ -8,10 +9,6 @@ static uint64_t cyclesLeft;
 static processList *processes;
 static processNode *currentProcess = NULL;
 static processNode *baseProcess;        //This is the process that will be running when there are no task to be executed
-
-
-#define BACKGROUND 0
-#define FOREGROUND 1
 
 static int queueIsEmpty(processList *processes);
 static processNode *dequeueProcess(processList *processes);
@@ -26,18 +23,17 @@ static processNode *getProcess(uint64_t pid);
 
 int strlen(char * s){
     int i;
-    for ( int i = 0 ; s[i] != 0 ; i++)
+    for (i = 0 ; s[i] != 0 ; i++)
         ;
     return i;
 }
 
-int strcpy(char * dest, char * src){
+char * strcpy(char * dest, char * src){
     for (int i = 0; src[i] != 0 ; i++){
         dest[i] = src[i];
     }
+    return dest;
 }
-
-
 
 void init(int argc, char ** argv){
     while(1){
@@ -59,7 +55,6 @@ void initializeScheduler() {
     char *argv[] = {"Init"};
     addProcess( &init, 1, argv, BACKGROUND, 0); //TODO setear el base process
     baseProcess = dequeueProcess(processes);
-
 }
 
 void * schedule(void * rsp){
@@ -94,7 +89,8 @@ void * schedule(void * rsp){
             }
             currentProcess = dequeueProcess(processes);
         }
-    } else {
+    }
+    else {
         currentProcess = baseProcess;
     }
 
@@ -102,8 +98,6 @@ void * schedule(void * rsp){
 
     return currentProcess->process.processSP;
 }
-
-
 
 int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int foreground, int *fd){
     if (entryPoint == NULL) {
@@ -145,7 +139,6 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
     }
 
     return newProcess->process.pid;
-
 }
 
 int readyProcess(uint64_t pid) {
@@ -155,9 +148,8 @@ int readyProcess(uint64_t pid) {
 int blockProcess(uint64_t pid) {
     int resPID = setState(pid, BLOCKED);
 
-    if (pid == currentProcess->process.pid) {
+    if (pid == currentProcess->process.pid)
         callTimerTick();
-    }
 
     return resPID;
 }
@@ -165,9 +157,8 @@ int blockProcess(uint64_t pid) {
 int killProcess(uint64_t pid) {
     int resPID = setState(pid, TERMINATED);
 
-    if (pid == currentProcess->process.pid) {
+    if (pid == currentProcess->process.pid)
         callTimerTick();
-    }
 
     return resPID;
 }
@@ -215,7 +206,6 @@ static int initializeProcessControlBlock(process *process, char *name,uint8_t fo
 }
 
 // GETTERS
-
 static int getArguments(char **to, char **from, int count) {
     for (int i = 0; i < count; i++) {
         to[i] = malloc(sizeof(char) * (strlen(from[i]) + 1));
@@ -235,31 +225,30 @@ static int getArguments(char **to, char **from, int count) {
 static uint64_t getPID() {
     return currentPID++;
 }
+
 int getProcessPID() {
     return currentProcess ? currentProcess->process.pid : -1;
 }
+
 int getCurrentProcessInputFD() {
-    if (currentProcess) {
+    if (currentProcess)
         return currentProcess->process.FD[0];
-    } else {
+    else
         return -1;
-    }
 }
 
 int getCurrentProcessOutputFD() {
-    if (currentProcess) {
+    if (currentProcess)
         return currentProcess->process.FD[1];
-    } else {
+    else
         return -1;
-    }
 }
 
 int currentProcessIsForeground() {
-    if (currentProcess) {
+    if (currentProcess)
         return currentProcess->process.foreground;
-    } else {
+    else
         return -1;
-    }
 }
 // SETTERS
 int setState(uint64_t pid, pState newState) {
@@ -300,6 +289,7 @@ void setPriority(uint64_t pid, int newPriority) {
         p->process.prio = newPriority;
     }
 }
+
 // FIND FUNCITONS
 static processNode *getProcess(uint64_t pid) {
     if (currentProcess != NULL && currentProcess->process.pid == pid) {
@@ -315,6 +305,7 @@ static processNode *getProcess(uint64_t pid) {
     }
     return NULL;
 }
+
 // MEM FUNCITONS
 static void freeProcess(processNode *process) {
     if(process != NULL){

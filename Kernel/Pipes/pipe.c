@@ -1,121 +1,173 @@
-//#include "types.h"
-//#include "defs.h"
-//#include "param.h"
-//#include "mmu.h"
-//#include "proc.h"
-//#include "fs.h"
-//#include "spinlock.h"
-//#include "sleeplock.h"
-//#include "file.h"
-//
-//#define PIPESIZE 512
-//
-//typedef struct pipe {
-//    int id; // id of the pipe
-//    char data[PIPESIZE];
-//    uint nread;     // number of bytes read
-//    uint nwrite;    // number of bytes written
-//    int readopen;   // read fd is still open
-//    int writeopen;  // write fd is still open
-//}pipe;
-//
-//int
-//pipealloc(struct file **f0, struct file **f1)
-//{
-//    struct pipe *p;
-//
-//    p = 0;
-//    *f0 = *f1 = 0;
-//    if((*f0 = filealloc()) == 0 || (*f1 = filealloc()) == 0)
-//        goto bad;
-//    if((p = (struct pipe*)kalloc()) == 0)
-//        goto bad;
-//    p->readopen = 1;
-//    p->writeopen = 1;
-//    p->nwrite = 0;
-//    p->nread = 0;
-//    initlock(&p->lock, "pipe");
-//    (*f0)->type = FD_PIPE;
-//    (*f0)->readable = 1;
-//    (*f0)->writable = 0;
-//    (*f0)->pipe = p;
-//    (*f1)->type = FD_PIPE;
-//    (*f1)->readable = 0;
-//    (*f1)->writable = 1;
-//    (*f1)->pipe = p;
-//    return 0;
-//
-////PAGEBREAK: 20
-//    bad:
-//    if(p)
-//        kfree((char*)p);
-//    if(*f0)
-//        fileclose(*f0);
-//    if(*f1)
-//        fileclose(*f1);
-//    return -1;
-//}
-//
-//void
-//pipeclose(struct pipe *p, int writable)
-//{
-//    acquire(&p->lock);
-//    if(writable){
-//        p->writeopen = 0;
-//        wakeup(&p->nread);
-//    } else {
-//        p->readopen = 0;
-//        wakeup(&p->nwrite);
-//    }
-//    if(p->readopen == 0 && p->writeopen == 0){
-//        release(&p->lock);
-//        kfree((char*)p);
-//    } else
-//        release(&p->lock);
-//}
-//
-////PAGEBREAK: 40
-//int
-//pipewrite(struct pipe *p, char *addr, int n)
-//{
-//    int i;
-//
-//    acquire(&p->lock);
-//    for(i = 0; i < n; i++){
-//        while(p->nwrite == p->nread + PIPESIZE){  //DOC: pipewrite-full
-//            if(p->readopen == 0 || myproc()->killed){
-//                release(&p->lock);
-//                return -1;
-//            }
-//            wakeup(&p->nread);
-//            sleep(&p->nwrite, &p->lock);  //DOC: pipewrite-sleep
-//        }
-//        p->data[p->nwrite++ % PIPESIZE] = addr[i];
-//    }
-//    wakeup(&p->nread);  //DOC: pipewrite-wakeup1
-//    release(&p->lock);
-//    return n;
-//}
-//
-//int
-//piperead(struct pipe *p, char *addr, int n)
-//{
-//    int i;
-//
-//    acquire(&p->lock);
-//    while(p->nread == p->nwrite && p->writeopen){  //DOC: pipe-empty
-//        if(myproc()->killed){
-//            release(&p->lock);
-//            return -1;
-//        }
-//        sleep(&p->nread, &p->lock); //DOC: piperead-sleep
-//    }
-//    for(i = 0; i < n; i++){  //DOC: piperead-copy
-//        if(p->nread == p->nwrite)
-//            break;
-//        addr[i] = p->data[p->nread++ % PIPESIZE];
-//    }
-//    wakeup(&p->nwrite);  //DOC: piperead-wakeup
-//    release(&p->lock);
-//    return i;
-//}
+#include <stdint.h>
+#include <semaphores.h>
+#include <lib.h>
+#include <memManager.h>
+
+#define PIPESIZE 512
+
+typedef struct pipe {
+    int id; // id of the pipe
+    char data[PIPESIZE];
+    uint32_t readIndex;     // number of bytes read
+    uint32_t writeIndex;    // number of bytes written
+    int readLock;   // read fd is still open
+    int writeLock;  // write fd is still open
+    int processesUsing;
+}pipe;
+
+typedef struct pipeNode {
+    pipe *p;
+    struct pipeNode *next;
+}pipeNode;
+
+typedef struct pipeList {
+    pipeNode * first;
+    pipeNode * last;
+    uint32_t size;
+}pipeList;
+
+static pipeList * pipes;
+
+int currentSemId = 0;
+
+pipe * getPipe(int pipeID){
+    if(pipes == NULL)
+        return NULL;
+
+    pipeNode * aux = pipes->first;
+
+    while(aux != NULL){
+        if(aux->p->id == pipeID)
+            return aux->p;
+        aux = aux->next;
+    }
+    return NULL;
+}
+
+pipe * createPipe(int pipeId) {
+    pipe *p;
+
+    if ((p = malloc(sizeof(pipe))) == NULL)
+        return NULL;
+
+    p->id = pipeId;
+    p->writeIndex = 0;
+    p->readIndex = 0;
+    p->processesUsing = 0;
+
+    if((p->readLock = semOpen(currentSemId++, 0)) == ERROR){
+        free(p);
+        return NULL;
+    }
+
+    if((p->writeLock = semOpen(currentSemId++, PIPESIZE)) == ERROR){
+        free(p);
+        return NULL;
+    }
+
+    pipeNode *node;
+
+    if((node = malloc(sizeof(pipeNode))) == NULL){
+        free(p);
+        return NULL;
+    }
+
+    node->p = p;
+    node->next = NULL;
+
+    if (pipes == NULL) {
+        if((pipes = malloc(sizeof(pipeList))) == NULL){
+            free(p);
+            free(node);
+            return NULL;
+        }
+        pipes->first = node;
+        pipes->last = node;
+        pipes->size = 1;
+    } else {
+        pipes->last->next = node;
+        pipes->last = node;
+        pipes->size++;
+    }
+
+    return p;
+}
+
+int pipeOpen(int pipeId){
+    pipe * p;
+
+    if ((p = getPipe(pipeId)) == NULL) {
+        p = createPipe(pipeId);
+        if (p == NULL)
+            return ERROR;
+    }
+    p->processesUsing++;
+    pipes->size++;
+    return pipeId;
+}
+
+static void deletePipe(int pipeId){
+    pipeNode * aux = pipes->first;
+    pipeNode * prev = NULL;
+
+    while(aux != NULL){
+        if(aux->p->id == pipeId){
+            if(prev == NULL){
+                pipes->first = aux->next;
+            } else {
+                prev->next = aux->next;
+            }
+            free(aux->p);
+            free(aux);
+            pipes->size--;
+            return;
+        }
+        prev = aux;
+        aux = aux->next;
+    }
+}
+
+int pipeClose(int pipeId){
+    pipe * p = getPipe(pipeId);
+    if (p == NULL)
+        return ERROR;
+
+    p->processesUsing--;
+
+    if (p->processesUsing == 0)
+        deletePipe(pipeId);
+
+    return 0;
+}
+
+int pipeWrite(int pipeId, const char * src){
+    pipe * p = getPipe(pipeId);
+    if (p == NULL)
+        return ERROR;
+
+    int i;
+
+    for(i = 0; src[i] != '\0'; i++){
+        semWait(p->writeLock);
+        p->data[p->writeIndex++] = src[i];
+        p->writeIndex = p->writeIndex % PIPESIZE;
+        semPost(p->readLock);
+    }
+
+    return i;
+}
+
+int pipeRead(int pipeId){
+    pipe * p = getPipe(pipeId);
+    if (p == NULL)
+        return ERROR;
+
+    semWait(p->readLock);
+
+    char c = p->data[p->readIndex++];
+    p->readIndex = p->readIndex % PIPESIZE;
+
+    semPost(p->writeLock);
+
+    return c;
+}
