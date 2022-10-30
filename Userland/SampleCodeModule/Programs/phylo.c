@@ -1,9 +1,12 @@
 #include "../include/phylo.h"
+#include "../include/sysCalls.h"
 
 /* TODO esto es medio pseudocodigo, desp tenemos que el tema de las syscalls
  * voy a poner los nombres genericos de las syscalls */
 
 typedef enum {THINKING, WAITING, EATING} phyloState;
+#define BACKGROUND 0
+#define FOREGROUND 1
 
 typedef struct phylo{
     int pid;
@@ -47,9 +50,9 @@ void phyloProblem(int argc, char **argv) {
     printf("\n For the first 2 seconds you will not be able to add philosophers, let them eat.\n\n");
 
     char *args[] = {"Phylo Table"};
-    int tablePID = newProcess(&printTable, 1, args, BACKGROUND, NULL);
+    int tablePID = sysAddProcess(&printTable, 1, args, BACKGROUND);
 
-    sleep(PHYLO_WAIT);
+    sysSleep(PHYLO_WAIT);
 
     printf("\n The 2 second mark has passed, you can interact with the table.\n\n");
 
@@ -82,12 +85,12 @@ void phyloProblem(int argc, char **argv) {
     }
 
     for (int i = 0; i < philosopherCount; i++) {
-        semClose(philosophers[i]->sem);
-        killProcess(philosophers[i]->pid);
-        free(philosophers[i]);
+        sysSemClose(philosophers[i]->sem);
+        sysKillProcess(philosophers[i]->pid);
+        sysFree(philosophers[i]);
     }
-    killProcess(tablePID);
-    semClose(MUTEX_SEM_ID);
+    sysKillProcess(tablePID);
+    sysSemClose(MUTEX_SEM_ID);
 }
 
 static void phyloMain(int argc, char **argv) {
@@ -105,12 +108,12 @@ static int addPhylo() {
         return -1;
     }
 
-    semWait(mutex);
-    phylo *philosopher = malloc(sizeof(t_philosofer));
+    sysSemWait(mutex);
+    phylo *philosopher = sysMalloc(sizeof(t_philosofer));
     if (philosopher == NULL) {
         return -1;
     }
-    philosopher->sem = semOpen(PHYLO_SEM_ID + philosopherCount, 1);
+    philosopher->sem = sysSemOpen(PHYLO_SEM_ID + philosopherCount, 1);
     philosopher->state = THINKING;
     philosopher->phyloID = philosopherCount;
 
@@ -118,11 +121,11 @@ static int addPhylo() {
     //TODO guardar en index el numero de phylo en string
 
     char *argv[] = {"philosopher", index};
-    philosopher->pid = addProcess(&phyloMain, 2, argv, BACKGROUND, NULL);
+    philosopher->pid = sysAddProcess(&phyloMain, 2, argv, BACKGROUND);
 
     philosophers[philosopherCount++] = philosopher;
 
-    semPost(mutex);
+    sysSemPost(mutex);
     return 0;
 }
 
@@ -131,47 +134,47 @@ static int removePhylo() {
         return -1;
     }
 
-    semWait(mutex);
+    sysSemWait(mutex);
 
     phylo *philosopher = philosophers[--philosopherCount];
-    semClose(philosopher->sem);
-    killProcess(philosopher->pid);
-    free(philosopher);
+    sysSemClose(philosopher->sem);
+    sysKillProcess(philosopher->pid);
+    sysFree(philosopher);
 
-    semPost(mutex);
+    sysSemPost(mutex);
     return 0;
 }
 
 static void takeForks(int i) {
-    semWait(mutex);
+    sysSemWait(mutex);
     philosophers[i]->state = WAITING;
     eat(i);
-    semPost(mutex);
-    semWait(philosophers[i]->sem);
+    sysSemPost(mutex);
+    sysSemWait(philosophers[i]->sem);
 }
 
 static void putForks(int i) {
-    semWait(mutex);
+    sysSemWait(mutex);
     philosophers[i]->state = THINKING;
     eat(LEFT(i));
     eat(RIGHT(i));
-    semPost(mutex);
+    sysSemPost(mutex);
 }
 
 static void eat(int i) {
     if (philosophers[i]->state == WAITING && philosophers[LEFT(i)]->state != EATING && philosophers[RIGHT(i)]->state != EATING) {
         philosophers[i]->state = EATING;
-        semPost(philosophers[i]->sem);
+        sysSemPost(philosophers[i]->sem);
     }
 }
 
 static void think() {
-    sleep(PHYLO_WAIT);
+    sysSleep(PHYLO_WAIT);
 }
 
 static void printTable(int argc, char **argv) {
     while (tableOpen) {
-        semWait(mutex);
+        sysSemWait(mutex);
         int i;
         for (i = 0; i < philosopherCount; i++) {
             if (philosophers[i]->state == EATING) {
@@ -182,7 +185,7 @@ static void printTable(int argc, char **argv) {
             putChar(' ');
         }
         putChar('\n');
-        semPost(mutex);
+        sysSemPost(mutex);
         yield();
     }
 }
