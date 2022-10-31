@@ -1,4 +1,4 @@
-/*
+
 #include <shell.h>
 #include <library.h>
 #include <clock.h>
@@ -187,46 +187,8 @@ void stopForCommand(){
     }
 }
 
-void restartStates(){
-    restartFibo();
-    restartPrimes();
-}
 
-int addLoopFunc(noArgTask * str, char * command){
-    for(int i=0 ; i < NUM_LOOP_COMMANDS; ++i){
-        if(strcmp(command,loopCommands[i].name) == 0){
-            str->isLoop=TRUE;
-            str->function=loopCommands[i].function;
-            sysTask(str, NO_ARG_TASK);
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
 
-int addNoArgFunc(noArgTask * str, char * command){
-    for(int i=0 ; i < NUM_COMMANDS_NO_ARG; ++i){
-        if(strcmp(command,noArgumentCommands[i].name) == 0){
-            str->isLoop=FALSE;
-            str->function=noArgumentCommands[i].function;
-            sysTask(str, NO_ARG_TASK);
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
 
-int addArgFunc(argTask * str, char * command, char * arg){
-    for(int i = 0 ; i < NUM_COMMANDS_ARG; ++i){
-        if(strcmp(command,argumentCommands[i].name) == 0){
-            str->function=argumentCommands[i].function;
-            str->arg1=arg;
-            str->isLoop=FALSE;
-            sysTask(str, ARG_TASK);
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
 
-*/
+
