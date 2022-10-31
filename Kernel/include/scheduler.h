@@ -91,6 +91,7 @@ int killProcess(uint64_t pid);
 void killCurrentFGProcess();
 int blockProcess(uint64_t pid);
 int readyProcess(uint64_t pid);
+void yield();
 int setState(uint64_t pid, pState newState);
 void setPriority(uint64_t pid, int newPriority);
 #endif //SCHEDULER_H

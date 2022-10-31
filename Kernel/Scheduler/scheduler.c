@@ -225,6 +225,11 @@ void wait(int pid) {
     }
 }
 
+void yield(){
+    cyclesLeft=0;
+    _force_timer_tick();
+}
+
 // INITIALIZERS
 static int initializeProcessControlBlock(process *process, char *name,uint8_t foreground, int *fd) {
     strcpy(process->name, name);//TODO have to cpy name

@@ -32,6 +32,7 @@ int sysPipeOpen(int pipeId);
 int sysPipeClose(int pipeId);
 int sysPipeRead(int pipeId);
 int sysPipeWrite( int pipeId, char * src);
+void sysYield();
 
 
 

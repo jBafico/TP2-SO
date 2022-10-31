@@ -34,6 +34,7 @@ section .data
                     SYSPIPECLOSE equ 90
                     SYSPIPEWRITE equ 91
                     SYSPIPEREAD equ 92
+                    SYSYIELD equ 93
     SYSTIME equ 201
 
 section .text
@@ -313,6 +314,16 @@ sysPipeWrite:
 push rbp
     mov rbp, rsp
     mov rax, SYSPIPEWRITE
+
+        int 80h
+        mov rsp, rbp
+        pop rbp
+        ret
+; void sysYield();
+sysYield:
+push rbp
+    mov rbp, rsp
+    mov rax, SYSYIELD
 
         int 80h
         mov rsp, rbp

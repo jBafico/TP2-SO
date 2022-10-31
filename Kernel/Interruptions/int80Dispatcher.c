@@ -40,6 +40,7 @@ enum sysCalls{  SYS_READ = 0,
                 SYS_PIPE_CLOSE=90,
                 SYS_PIPE_WRITE=91,
                 SYS_PIPE_READ=92,
+                SYS_YIELD=93,
                 SYS_TIME = 201};
 
 #define NO_ARG_TASK 1
@@ -213,6 +214,9 @@ int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2,
             return pipeRead((int)arg0);
         case SYS_PIPE_WRITE:
             return pipeWrite((int) arg0, (char *) arg1);
+        case SYS_YIELD:
+            yield();
+            break;
         }
         return 0;
 }
