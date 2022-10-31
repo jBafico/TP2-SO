@@ -2,7 +2,7 @@ include Makefile.inc
 
 KERNEL=kernel.bin
 
-SOURCES = $(wildcard *.c)
+SOURCES = $(wildcard [^_]*.c)
 SOURCES_FOLDERS = $(wildcard */*.c)
 SOURCES_ASM = $(wildcard */*.asm)
 
