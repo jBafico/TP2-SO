@@ -94,13 +94,11 @@ void runSampleCodeModule(){
 
 
 void dummy1(int argc, char ** argv){
-	while(1)
-	ncPrintChar("1");
+	ncPrint("JuAn");
 }
 
 void dummy2(int argc, char ** argv){
-	while(1)
-	ncPrintChar('2');
+	ncPrint("SaNti");
 }
 
 int main()
@@ -134,8 +132,8 @@ int main()
 	char *argv[] = {"d1"};
 	char * argv2[] = {"d2"};
 	int fd[] = {STDIN,STDOUT};
+	addProcess(dummy2,1,argv2,1,fd);
 	addProcess(dummy1,1,argv,1,fd);
-	//addProcess(dummy2,1,argv2,1,fd);
 	load_idt();
     //while (getKey() != ENTER); //Se consume hasta el \n
 	_hlt();

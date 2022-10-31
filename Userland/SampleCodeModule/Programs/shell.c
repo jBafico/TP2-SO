@@ -1,3 +1,4 @@
+/*
 #include <shell.h>
 #include <library.h>
 #include <clock.h>
@@ -227,3 +228,5 @@ int addArgFunc(argTask * str, char * command, char * arg){
     }
     return FALSE;
 }
+
+*/

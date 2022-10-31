@@ -5,6 +5,9 @@ GLOBAL picSlaveMask
 GLOBAL haltcpu
 GLOBAL _hlt
 
+
+
+GLOBAL _force_timer_tick
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
 GLOBAL _irq02Handler
@@ -45,6 +48,47 @@ SECTION .text
 	push r13
 	push r14
 	push r15
+%endmacro
+
+%macro pushAll 0 
+    push rax
+	push rbx
+	push rcx
+	push rdx
+	push rbp
+	push rdi
+	push rsi
+	push r8
+	push r9
+	push r10
+	push r11
+	push r12
+	push r13
+	push r14
+	push r15
+    push fs
+    push gs
+%endmacro
+
+%macro popAll 0 
+
+    pop gs 
+    pop fs
+    pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rsi
+	pop rdi
+	pop rbp
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rax
 %endmacro
 
 %macro popState 0
@@ -254,8 +298,11 @@ _xchg:
 	xchg [rdi], eax		; put eax in [rdi] and [rdi] in eax
 	ret
 
+_force_timer_tick
+	int 0x20
+	ret
 _timer_tick_handler:
-	pushState
+	pushAll
 
 	mov rdi, rsp ; pasaje de parametro, guardo stack pointer
 	call schedule, ;--> llamar desde aca a nuestro scheduler cuando lo tengamos operativo
@@ -264,7 +311,7 @@ _timer_tick_handler:
 	;signal pic EOI (End of Interrupt)
 	mov al, 20h
 	out 20h, al
-	popState
+	popAll
 	iretq
 
 haltcpu:

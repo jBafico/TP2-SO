@@ -2,6 +2,7 @@
 #include <keyboard.h>
 #include <memManager.h>
 #include <interrupts.h>
+#include <naiveConsole.h>
 
 static uint64_t currentPID = 0;
 static uint64_t cyclesLeft;
@@ -41,6 +42,50 @@ void init(int argc, char ** argv){
     }
 }
 
+
+void kill(){
+    killProcess(currentProcess->process.pid);
+    _force_timer_tick();
+}
+
+void beginProcessHandler( void (*entryPoint)(int,char**),int argc, char ** argv){
+    entryPoint(argc,argv);
+    //tras terminar la ejecucion, eliminamos al proceso
+    kill();
+}
+
+
+void initalizeDecieveStack(void (*entryPoint)(int, char **),int argc, char ** argv, void * rbp){
+    decieveStack *fakeStack = (decieveStack *)rbp - 1;
+
+    fakeStack->gs = 1;
+    fakeStack->fs = 1;
+    fakeStack->r15 = 1;
+    fakeStack->r14 = 1;
+    fakeStack->r13 = 1;
+    fakeStack->r12 = 1;
+    fakeStack->r11 = 1;
+    fakeStack->r10 = 1;
+    fakeStack->r9 = 1;
+    fakeStack->r8 = 1;
+    fakeStack->rsi = (uint64_t)argc;
+    fakeStack->rdi = (uint64_t)entryPoint;
+    fakeStack->rbp = 1;
+    fakeStack->rdx = (uint64_t)argv;
+    fakeStack->rcx = 1;
+    fakeStack->rbx = 1;
+    fakeStack->rax = 1;
+    fakeStack->rip = (uint64_t)beginProcessHandler;
+    fakeStack->cs = 0x008;//code selector
+    fakeStack->flags = 0x202;
+    fakeStack->rsp = (uint64_t)(&fakeStack->base);
+    fakeStack->ss = 0x000;//stack selector
+    fakeStack->base = 0x000;
+}
+
+
+
+
 void initializeScheduler() {
     processes = malloc(sizeof(processList));
     if (processes == NULL) {
@@ -58,6 +103,7 @@ void initializeScheduler() {
 }
 
 void * schedule(void * rsp){
+    ncPrint("i am scheduling!");
     if (currentProcess != NULL) {
         if (currentProcess->process.state == READY && cyclesLeft > 0) {
             cyclesLeft--;
@@ -105,6 +151,7 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
     }
 
     processNode *newProcess = malloc(sizeof(processNode));
+
     if (newProcess == NULL) {
         return -1;
     }
@@ -137,7 +184,7 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
     if (newProcess->process.foreground && newProcess->process.ppid) {
         blockProcess(newProcess->process.ppid);
     }
-
+    ncPrint("Process Initialization Success");
     return newProcess->process.pid;
 }
 
@@ -149,7 +196,7 @@ int blockProcess(uint64_t pid) {
     int resPID = setState(pid, BLOCKED);
 
     if (pid == currentProcess->process.pid)
-        callTimerTick();
+        _force_timer_tick();
 
     return resPID;
 }
@@ -158,7 +205,7 @@ int killProcess(uint64_t pid) {
     int resPID = setState(pid, TERMINATED);
 
     if (pid == currentProcess->process.pid)
-        callTimerTick();
+        _force_timer_tick();
 
     return resPID;
 }
@@ -201,7 +248,7 @@ static int initializeProcessControlBlock(process *process, char *name,uint8_t fo
     }
     //TODO CHEQUEAR ALINEAMIENTO
     process->processBP = (void *)((char *)process->processBP + SIZE_OF_STACK - 1);
-    //process->processSP = (void *)(());//TODO GET THE STACK POINTER
+    process->processSP = (void *)((decieveStack *)process->processBP - 1);//TODO GET THE STACK POINTER
     return 0;
 }
 

@@ -81,7 +81,6 @@ typedef void (*commandPointer)(void);
 void * schedule();
 void initializeScheduler();
 int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int foreground, int *fd);
-void callTimerTick();
 
 void wait(int pid);
 int currentProcessIsForeground();

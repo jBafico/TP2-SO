@@ -9,7 +9,7 @@
 typedef struct info {
     uint64_t availableBytes;
     uint64_t allocatedBytes;
-    uint64_t totalMemory
+    uint64_t totalMemory;
 } memInfo;
 
 

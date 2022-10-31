@@ -1,8 +1,13 @@
+
 #include "../include/phylo.h"
 #include "../include/sysCalls.h"
 
 /* TODO esto es medio pseudocodigo, desp tenemos que el tema de las syscalls
  * voy a poner los nombres genericos de las syscalls */
+
+
+
+/*
 
 typedef enum {THINKING, WAITING, EATING} phyloState;
 #define BACKGROUND 0
@@ -196,3 +201,4 @@ static void phyloIntro() {
     print("Use R to remove a philosopher \n");
     print("Use F to finish \n");
 }
+*/

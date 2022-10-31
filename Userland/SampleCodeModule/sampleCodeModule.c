@@ -6,7 +6,7 @@
 #define FALSE !TRUE
 
 static int firstEntry = TRUE;
-
+/*
 int main() {
     if(firstEntry){
         printk("OMG USER HI!! Welcome to the LettuceOS Shell!\n\n");
@@ -25,3 +25,4 @@ int main() {
 
     return 0;
 }
+*/

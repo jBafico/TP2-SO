@@ -1,6 +1,9 @@
 #ifndef SAMPLECODEMODULE_TIME_H
 #define SAMPLECODEMODULE_TIME_H
 
+
+#include <stdint.h>
+
 typedef struct clock{
     uint8_t seconds;
     uint8_t minutes;
