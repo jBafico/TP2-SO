@@ -12,7 +12,7 @@ int64_t iterations = 0;
 void slowInc(int64_t *p, int64_t inc) {
     int64_t aux = *p;
     aux += inc;
-    yield(); //TODO yield
+    sysYield(); 
     *p = aux;
 }
 
