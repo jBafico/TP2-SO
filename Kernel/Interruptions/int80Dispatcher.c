@@ -8,6 +8,7 @@
 #include <semaphores.h>
 #include <pipe.h>
 #include <interrupts.h>
+#include <scheduler.h>
 
 #define CANTBYTES 32
 #define MAX_BUFF 512
@@ -41,7 +42,8 @@ enum sysCalls{  SYS_READ = 0,
                 SYS_PIPE_WRITE=91,
                 SYS_PIPE_READ=92,
                 SYS_YIELD=93,
-                SYS_TIME = 201};
+                SYS_TIME = 201,
+                SYS_GETPROCESSLIST = 202};
 
 #define NO_ARG_TASK 1
 typedef void (*noArgPointer)(uint8_t fd);
@@ -151,6 +153,7 @@ int sys_mem(uint8_t * mem, uint64_t address){
 
 //TODO ESTO NO TIENE QUE DEVOLVER INT XQ AHORA HAY CASOS DE DEVOLVER VOID *
 int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+    //TODO OJOCON ESTO  
     _sti();
     int FD[]={STDIN, STDOUT};
     switch (code) {
@@ -214,6 +217,8 @@ int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2,
             return pipeRead((int)arg0);
         case SYS_PIPE_WRITE:
             return pipeWrite((int) arg0, (char *) arg1);
+        case SYS_GETPROCESSLIST:
+            return getProcessList((processStruct *) arg0);
         case SYS_YIELD:
             yield();
             break;

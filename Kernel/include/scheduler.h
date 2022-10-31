@@ -73,8 +73,19 @@ typedef struct {
 
 #define STOP_FIRST 1
 #define STOP_SECOND 2
-
+#define EXCHANGEBUFFERSIZE 128
+#define SMALLBUFFER 64
 #define EXIT_KEY 28 //ASCII para la tecla de ESC
+
+typedef struct processStruct{
+    uint64_t pid;
+    char name[EXCHANGEBUFFERSIZE];
+    uint64_t stackPointer;
+    uint64_t basePointer;
+    char type[SMALLBUFFER];
+    char state[SMALLBUFFER];
+} processStruct;
+
 
 typedef void (*commandPointer)(void);
 
@@ -94,4 +105,5 @@ int readyProcess(uint64_t pid);
 void yield();
 int setState(uint64_t pid, pState newState);
 void setPriority(uint64_t pid, int newPriority);
+int getProcessList(processStruct * ps);
 #endif //SCHEDULER_H

@@ -94,10 +94,12 @@ void runSampleCodeModule(){
 
 
 void dummy1(int argc, char ** argv){
+	while(1)
 	ncPrint("JuAn");
 }
 
 void dummy2(int argc, char ** argv){
+	while(1)
 	ncPrint("SaNti");
 }
 

@@ -21,7 +21,7 @@ static int getArguments(char **to, char **from, int count);
 static void freeProcess(processNode *p);
 static processNode *getProcess(uint64_t pid);
 
-
+//TODO MOVER A ALGUN OTRO LUGAR
 int strlen(char * s){
     int i;
     for (i = 0 ; s[i] != 0 ; i++)
@@ -35,6 +35,12 @@ char * strcpy(char * dest, char * src){
     }
     return dest;
 }
+
+
+
+
+
+
 
 void init(int argc, char ** argv){
     while(1){
@@ -406,6 +412,21 @@ processNode *dequeueProcess(processList *processes) {
 
 int queueIsEmpty(processList *processes) {
     return processes->size == 0;
+}
+
+
+int getProcessList(processStruct * ps){
+    processNode* current = processes->first;
+    int i;
+    for ( i = 0; i < processes->size; i++, current = current->next){
+        strcpy(ps[i].name,current->process.name);
+        strcpy(ps[i].type,current->process.foreground ? "Foreground":"Background");
+        strcpy(ps[i].state,current->process.state == READY ? "Ready": current->process.state == BLOCKED ? "Blocked":"Terminated");
+        ps[i].pid = current->process.pid;
+        ps[i].basePointer = current->process.processBP;
+        ps[i].stackPointer = current->process.processSP;
+    }
+    return i;
 }
 
 
