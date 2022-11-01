@@ -30,6 +30,6 @@ char* strcpy(char* dest, const char* src);
 char getChar();
 int getStringLength(const char *vec);
 int myAtoi(char * str);
-
+void *memset(void *destination, int32_t c, uint64_t length);
 
 #endif //SAMPLECODEMODULE_LIBRARY_H
