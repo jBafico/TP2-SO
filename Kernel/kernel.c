@@ -131,11 +131,13 @@ int main()
 	ncClear();	
 	initMemMan((void *)0x600000,0x800000 - 0x600000);
 	initializeScheduler();
-	char *argv[] = {"d1"};
-	char * argv2[] = {"d2"};
-	int fd[] = {STDIN,STDOUT};
-	addProcess(dummy2,1,argv2,1,fd);
-	addProcess(dummy1,1,argv,1,fd);
+	// char *argv[] = {"d1"};
+	// char * argv2[] = {"d2"};
+	// int fd[] = {STDIN,STDOUT};
+	// addProcess(dummy2,1,argv2,1,fd);
+	// addProcess(dummy1,1,argv,1,fd);
+	char * argv[] = { "userland initalizaition"};
+	addProcess(sampleCodeModuleAddress,1,argv,1,0);
 	load_idt();
     //while (getKey() != ENTER); //Se consume hasta el \n
 	_hlt();

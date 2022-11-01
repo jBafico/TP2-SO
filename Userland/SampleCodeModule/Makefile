@@ -2,7 +2,7 @@ include ../Makefile.inc
 
 MODULE=0000-sampleCodeModule.bin
 
-SOURCES=$(wildcard [^_]*.c)
+SOURCES=$(wildcard *.c)
 SOURCES_FOLDERS = $(wildcard */*.c)
 SOURCES_ASM=$(wildcard asm/*.asm)
 

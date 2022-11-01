@@ -62,6 +62,26 @@ char * errMessages[CANT_ERR_MESSAGES] = {" : comando no encontrado\n",
 
 
 #define IS_SPACE_OR_TAB(c) ((c) == ' ' || (c) == '\t')
+
+
+firstEntry = true;
+void initalizeShell(int argc, char ** argv){
+
+     if(firstEntry) {
+        printk("OMG USER HI!! Welcome to the LettuceOS Shell!\n\n");
+        help(0,NULL);
+    }
+
+    while (firstEntry && getChar() != '\n')
+        ;
+
+    firstEntry = false;
+
+    while (1){
+        printk("> ");
+        stopForCommand();
+    }
+}
 // funcion para parsear el string, cada fila de la matriz es un string
 // devuelve cantidad de palabras (incluyendo el pipe) que encontro
 //  "pepe roro dfasdfasdfadsfasdfa"
