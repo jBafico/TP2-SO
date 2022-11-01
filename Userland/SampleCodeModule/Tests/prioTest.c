@@ -2,6 +2,7 @@
  #include <utilTest.h>
  #include <stdint.h>
  #include <sysCalls.h>
+#include <library.h>
 
  #define TOTAL_PROCESSES 3
 
@@ -14,9 +15,9 @@
          pids[i] = sysAddProcess(&endless_loop_print, 1, argv, BACKGROUND);
      }
 
-     busyWait(TOTAL_PROCESSES * WAIT);
+     bussy_wait(TOTAL_PROCESSES * WAIT);
 
-     print("\nCHANGING PRIORITIES...\n");//TODO cambiar a print k
+     printk("\nCHANGING PRIORITIES...\n");
 
      for (i = 0; i < TOTAL_PROCESSES; i++) {
          switch (i % 3) {
@@ -32,27 +33,27 @@
          }
      }
 
-     busyWait(TOTAL_PROCESSES * WAIT);
+     bussy_wait(TOTAL_PROCESSES * WAIT);
 
-     printf("\nBLOCKING...\n"); //TODO cambiar a printk
+     printk("\nBLOCKING...\n");
 
      for (i = 0; i < TOTAL_PROCESSES; i++) {
          sysBlockProcess(pids[i]);
      }
 
-     printf("\nCHANGING PRIORITIES WHILE BLOCKED...\n");//TODO cambiar a printk
+     printk("\nCHANGING PRIORITIES WHILE BLOCKED...\n");
      for (i = 0; i < TOTAL_PROCESSES; i++) {
          sysSetPriority(pids[i], 20);
      }
 
-     printf("\nUNBLOCKING...\n");//TODO cambiar a printk
+     printk("\nUNBLOCKING...\n");
 
      for (i = 0; i < TOTAL_PROCESSES; i++) {
          sysReadyProcess(pids[i]);
      }
 
-     busyWait(TOTAL_PROCESSES * WAIT);
-     printf("\nKILLING...\n");//TODO cambiar a printk
+     bussy_wait(TOTAL_PROCESSES * WAIT);
+     printk("\nKILLING...\n");
 
      for (i = 0; i < TOTAL_PROCESSES; i++) {
          sysKillProcess(pids[i]);

@@ -2,6 +2,7 @@
  #include <sysCalls.h>
  #include <stdio.h>
  #include <stdint.h>
+#include <library.h>
 
  //Random
  static uint32_t m_z = 362436069;
@@ -65,7 +66,7 @@
      int64_t pid = sysGetPID();
 
      while(1){
-         printf("%d ",pid);
+         printk("%d ",pid);
          bussy_wait(WAIT);
      }
  }

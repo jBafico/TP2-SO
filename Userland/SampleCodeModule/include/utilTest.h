@@ -4,6 +4,8 @@
 #include <stdint.h>
 #define MINOR_WAIT 1000000
 #define WAIT 10000000
+#define BACKGROUND 0
+#define FOREGROUND 1
 
 uint32_t GetUint();
 uint32_t GetUniform(uint32_t max);

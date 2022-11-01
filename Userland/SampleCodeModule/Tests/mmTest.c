@@ -1,6 +1,8 @@
  #include <mmTest.h>
  #include <sysCalls.h>
  #include <utilTest.h>
+ #include <library.h>
+
 
  #define MAX_BLOCKS 128
  #define MAX_MEMORY (32 * 1024 * 1024)
@@ -15,7 +17,7 @@
      uint8_t rq;
      uint32_t total;
 
-     printf("Initializing Memory Testing\n");
+     printk("Initializing Memory Testing\n");
 
      while (1) {
          rq = 0;
@@ -25,7 +27,7 @@
              mm_rqs[rq].size = GetUniform(MAX_MEMORY - total - 1) + 1;
              mm_rqs[rq].address = sysMalloc((uint64_t)mm_rqs[rq].size);
              if (mm_rqs[rq].address == NULL) {
-                 printf("No memory left\n");
+                 printErr("No memory left\n");
                  return;
              }
              total += mm_rqs[rq].size;
@@ -40,13 +42,13 @@
          for (i = 0; i < rq; i++)
              if (mm_rqs[i].address != NULL) {
                  if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
-                     printf("ERROR!\n");
+                     printErr("ERROR!\n");
                  }
              }
 
          for (i = 0; i < rq; i++)
              if (mm_rqs[i].address != NULL) {
-                 free(mm_rqs[i].address);
+                 sysFree(mm_rqs[i].address);
              }
      }
  }

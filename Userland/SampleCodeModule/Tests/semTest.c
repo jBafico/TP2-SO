@@ -1,6 +1,7 @@
  #include <semTest.h>
  #include <sysCalls.h>
  #include <utilTest.h>
+#include <library.h>
 
  #define PAIR_PROCESSES 2
  #define SEM_ID 55
@@ -17,31 +18,31 @@
  }
 
  void inc(int argc, char *argv[]) {
-     uint64_t sem = strToInt(argv[1], 0);
-     uint64_t value = strToInt(argv[2], 0);
-     uint64_t N = strToInt(argv[3], 0);
+     uint64_t sem = satoi(argv[1]);
+     uint64_t value = satoi(argv[2]);
+     uint64_t N = satoi(argv[3]);
      uint64_t i;
 
      if (sem && sysSemOpen(SEM_ID, 1) == -1) {
-         printf("ERROR OPENING SEM\n");// TODO cambiar a printk
+         printErr("ERROR OPENING SEM\n");
          return;
      }
 
      for (i = 0; i < N; i++) {
          if (sem && sysSemWait(SEM_ID) != 0) {
-             printf("ERROR WAITING SEM\n"); // TODO cambiar a printk
+             printErr("ERROR WAITING SEM\n");
          }
          slowInc(&global, value);
          if (sem && sysSemPost(SEM_ID) != 0) {
-             printf("ERROR POSTING SEM\n"); // TODO cambiar a printk
+             printErr("ERROR POSTING SEM\n");
          }
      }
 
      if (sem && sysSemClose(SEM_ID) != 0) {
-         printf("ERROR CLOSING SEM\n"); // TODO cambiar a printk
+         printErr("ERROR CLOSING SEM\n");
      }
 
-     printf("\nFinal value: %d\n", global); // TODO cambiar a printk
+     printk("\nFinal value: %d\n", global);
 
  }
 
@@ -50,7 +51,7 @@
 
      global = 0;
 
-     printf("CREATING PROCESSES...(WITH SEM)\n");// TODO cambiar a printk
+     printk("CREATING PROCESSES...(WITH SEM)\n");
 
      for (i = 0; i < PAIR_PROCESSES; i++) {
          char *argv1[] = {"inc process with sem", "1", "1", "10000"};
@@ -65,12 +66,12 @@
 
      global = 0;
 
-     printf("CREATING PROCESSES...(WITHOUT SEM)\n"); // TODO cambiar a printk
+     printk("CREATING PROCESSES...(WITHOUT SEM)\n");
 
      for (i = 0; i < PAIR_PROCESSES; i++) {
          char *argv1[] = {"inc process without sem", "0", "1", "10000"};
-         sysAddProcess(&inc, 4, argv1, BACKGROUND, NULL);
+         sysAddProcess(&inc, 4, argv1, BACKGROUND);
          char *argv2[] = {"inc process without sem", "0", "-1", "10000"};
-         sysAddProcess(&inc, 4, argv2, BACKGROUND, NULL);
+         sysAddProcess(&inc, 4, argv2, BACKGROUND);
      }
  }

@@ -1,6 +1,7 @@
  #include <processTest.h>
  #include <sysCalls.h>
  #include <utilTest.h>
+#include <library.h>
 
  #define MAX_PROCESSES 10
 
@@ -22,7 +23,7 @@
              char *argv[] = {"Loop Process"};
              p_rqs[rq].pid = sysAddProcess(&endless_loop_print, 1, argv, BACKGROUND);
              if (p_rqs[rq].pid == -1) {
-                 printf("Error creating process\n"); //TODO cambiar a printk
+                 printErr("Error creating process\n");
                  return;
              } else {
                  p_rqs[rq].state = RUNNING;
@@ -37,19 +38,19 @@
                      case 0:
                          if (p_rqs[rq].state == RUNNING || p_rqs[rq].state == WAITING) {
                              if (sysKillProcess(p_rqs[rq].pid) == -1) {
-                                 printf("Error killing process\n"); //TODO cambiar a printk
+                                 printErr("Error killing process\n");
                                  return;
                              }
                              p_rqs[rq].state = KILLED;
                              alive--;
-                             busyWait(WAIT);
+                             bussy_wait(WAIT);
                          }
                          break;
 
                      case 1:
                          if (p_rqs[rq].state == RUNNING) {
                              if (sysBlockProcess(p_rqs[rq].pid) == -1) {
-                                 printf("Error blocking process\n"); //TODO cambiar a printk
+                                 printErr("Error blocking process\n");
                                  return;
                              }
                              p_rqs[rq].state = WAITING;
@@ -60,7 +61,7 @@
              for (rq = 0; rq < MAX_PROCESSES; rq++) {
                  if (p_rqs[rq].state == WAITING && GetUniform(2) % 2) {
                      if (sysReadyProcess(p_rqs[rq].pid) == -1) {
-                         printf("Error unblocking process\n"); //TODO cambiar a printk
+                         printErr("Error unblocking process\n");
                          return;
                      }
                      p_rqs[rq].state = RUNNING;

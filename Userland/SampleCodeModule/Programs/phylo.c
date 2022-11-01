@@ -1,12 +1,11 @@
 #include <phylo.h>
 #include <sysCalls.h>
-
-/* TODO esto es medio pseudocodigo, desp tenemos que el tema de las syscalls
- * voy a poner los nombres genericos de las syscalls */
+#include <library.h>
 
 
 
-/*
+
+
 
 typedef enum {THINKING, WAITING, EATING} phyloState;
 #define BACKGROUND 0
@@ -41,7 +40,7 @@ void phyloProblem(int argc, char **argv) {
 
     philosopherCount = 0;
     tableOpen = 1;
-    semOpen(MUTEX_SEM_ID, 1);
+    sysSemOpen(MUTEX_SEM_ID, 1);
 
     phyloIntro();
 
@@ -51,36 +50,35 @@ void phyloProblem(int argc, char **argv) {
         i++;
     }
 
-    printf("\n For the first 2 seconds you will not be able to add philosophers, let them eat.\n\n");
+    printk("\n For the first 2 seconds you will not be able to add philosophers, let them eat.\n\n");
 
     char *args[] = {"Phylo Table"};
     int tablePID = sysAddProcess(&printTable, 1, args, BACKGROUND);
 
     sysSleep(PHYLO_WAIT);
 
-    printf("\n The 2 second mark has passed, you can interact with the table.\n\n");
+    printk("\n The 2 second mark has passed, you can interact with the table.\n\n");
 
     while (tableOpen) {
         char key = getChar();
         switch (key) {
             case 'a':
-                if (addPhilo() == -1) {
-                    printc(RED, "\n You cant add more philosophers to the table.\n\n");
+                if (addPhylo() == -1) {
+                    printErr("\n You cant add more philosophers to the table.\n\n");
                 } else {
-                    printc(GREEN, "\n One philosopher was added.\n\n");
+                    printk("\n One philosopher was added.\n\n");
                 }
                 break;
             case 'r':
-                if (removePhilo() == -1) {
-                    printc(BLUE, "\n You cant leave, you will be here forever.\n\n");
+                if (removePhylo() == -1) {
+                    printErr("\n You cant leave, you will be here forever.\n\n");
                 } else {
-                    printc(RED, "\n A philosopher left, he got tired.\n\n");
+                    printk("\n A philosopher left, he got tired.\n\n");
                 }
                 break;
             case 'f':
-                printf(
-                        "\n DING DING The table is closed, you cant eat anymore. \n\n");
-                printf("\n Apu: Thank you, come again.\n\n");
+                printk("\n DING DING The table is closed, you cant eat anymore. \n\n");
+                printk("\n Apu: Thank you, come again.\n\n");
                 tableOpen = 0;
                 break;
             default:
@@ -98,7 +96,7 @@ void phyloProblem(int argc, char **argv) {
 }
 
 static void phyloMain(int argc, char **argv) {
-    int i = strToInt(argv[1], 0);
+    int i = myAtoi(argv[1]);
     while (1) {
         takeForks(i);
         think();
@@ -113,7 +111,7 @@ static int addPhylo() {
     }
 
     sysSemWait(mutex);
-    phylo *philosopher = sysMalloc(sizeof(t_philosofer));
+    phylo *philosopher = sysMalloc(sizeof(phylo));
     if (philosopher == NULL) {
         return -1;
     }
@@ -122,7 +120,8 @@ static int addPhylo() {
     philosopher->phyloID = philosopherCount;
 
     char index[3];
-    //TODO guardar en index el numero de phylo en string
+    itoa(philosopherCount,index, 10);
+
 
     char *argv[] = {"philosopher", index};
     philosopher->pid = sysAddProcess(&phyloMain, 2, argv, BACKGROUND);
@@ -182,22 +181,21 @@ static void printTable(int argc, char **argv) {
         int i;
         for (i = 0; i < philosopherCount; i++) {
             if (philosophers[i]->state == EATING) {
-                putChar('E');
+                putCharacter(STDOUT,'E');
             } else {
-                putChar('-');
+                putCharacter(STDOUT,'-');
             }
-            putChar(' ');
+            putCharacter(STDOUT,' ');
         }
-        putChar('\n');
+        putCharacter(STDOUT,'\n');
         sysSemPost(mutex);
-        yield();
+        sysYield();
     }
 }
 
 static void phyloIntro() {
-    print("Welcome to the dining philosophers problem \n");
-    print("Use A to add a philosopher \n");
-    print("Use R to remove a philosopher \n");
-    print("Use F to finish \n");
+    printk("Welcome to the dining philosophers problem \n");
+    printk("Use A to add a philosopher \n");
+    printk("Use R to remove a philosopher \n");
+    printk("Use F to finish \n");
 }
-*/

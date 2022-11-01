@@ -31,4 +31,5 @@ char getChar();
 int getStringLength(const char *vec);
 int myAtoi(char * str);
 
+
 #endif //SAMPLECODEMODULE_LIBRARY_H
