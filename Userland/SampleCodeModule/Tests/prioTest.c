@@ -16,7 +16,7 @@ void prioTest() {
 
     busyWait(TOTAL_PROCESSES * WAIT);
 
-    printf("\nCHANGING PRIORITIES...\n");//TODO cambiar a print k
+    print("\nCHANGING PRIORITIES...\n");//TODO cambiar a print k
 
     for (i = 0; i < TOTAL_PROCESSES; i++) {
         switch (i % 3) {

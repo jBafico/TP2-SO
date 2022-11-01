@@ -10,6 +10,22 @@ int strcmp(const char * str1, const char * str2){
     return *(const unsigned char *)str1 - *(const unsigned char *)str2;
 }
 
+char * strcpy(char* dest, const char* src){
+    if (dest == NULL)
+        return NULL;
+
+    char *ptr = dest;
+
+    while (*src != '\0'){
+        *dest = *src;
+        dest++;
+        src++;
+    }
+    *dest = '\0';
+
+    return ptr;
+}
+
 int abs(int num){
     return num >= 0 ? num: -1 * num;
 }
@@ -19,6 +35,28 @@ void swap(char *x, char *y) {
     char t = *x;
     *x = *y;
     *y = t;
+}
+
+
+
+
+// A simple atoi() function
+int myAtoi(char* str)
+{
+    // Initialize result
+    int res = 0;
+
+    // Iterate through all characters
+    // of input string and update result
+    // take ASCII character of corresponding digit and
+    // subtract the code from '0' to get numerical
+    // value and multiply res by 10 to shuffle
+    // digits left to update running total
+    for (int i = 0; str[i] != '\0'; ++i)
+        res = res * 10 + str[i] - '0';
+
+    // return result.
+    return res;
 }
 
 // Function to reverse `buffer[i…j]`

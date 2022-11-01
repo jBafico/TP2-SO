@@ -3,9 +3,9 @@
 
 #include <stdarg.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-#define TRUE 1
-#define FALSE !TRUE
+#define ERROR (-1)
 
 #define NULL (void *) 0
 
@@ -26,7 +26,9 @@ void printkfd(int fd, const char * fmt, ...);
 void printk(const char * fmt, ...);
 void printErr(const char * fmt, ...);
 int strcmp(const char * str1, const char * str2);
+char* strcpy(char* dest, const char* src);
 char getChar();
 int getStringLength(const char *vec);
+int myAtoi(char * str);
 
 #endif //SAMPLECODEMODULE_LIBRARY_H

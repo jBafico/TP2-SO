@@ -1,6 +1,6 @@
 #ifndef SAMPLECODEMODULE_HELP_H
 #define SAMPLECODEMODULE_HELP_H
 
-void help(uint8_t fd);
+void help(int argc, char ** argv);
 
 #endif //SAMPLECODEMODULE_HELP_H

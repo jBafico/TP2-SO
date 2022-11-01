@@ -3,8 +3,8 @@
 #include <sysCalls.h>
 #include <library.h>
 
-void time(uint8_t fd){
+void time(int argc, char ** argv){
     clock time;
     sysTime(&time);
-    printkfd(fd,"La hora y dia del sistema es: %d:%d:%d del %d/%d/%d \n", time.hours, time.minutes, time.seconds, time.dayOfMonth, time.month, time.year);
+    printk("La hora y dia del sistema es: %d:%d:%d del %d/%d/%d \n", time.hours, time.minutes, time.seconds, time.dayOfMonth, time.month, time.year);
 }

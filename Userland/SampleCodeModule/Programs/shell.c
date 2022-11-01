@@ -1,60 +1,71 @@
-
 #include <shell.h>
 #include <library.h>
 #include <clock.h>
 #include <help.h>
-#include <fibonacci.h>
-#include <primeNums.h>
 #include <exceptionTester.h>
 #include <printMem.h>
 #include <sysCalls.h>
-
+#include <semTest.h>
+#include <processTest.h>
+#include <mmTest.h>
+#include <prioTest.h>
+#include <phylo.h>
 
 #define MAX_LEN_COMMAND 128
 #define AUXVECTORLENGTH 20
 
 #define PIPE "|"
+#define AMPER "&"
 
-typedef struct{
+typedef struct command{
     char * name;
-    noArgPointer function;
-}noArgCommand;
+    void (* function) (int, char **);
+}command;
 
-typedef struct{
-    char * name;
-    argPointer function;
-}argCommand;
+#define CANT_NO_PIPE_COMMS 23
+command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
+                                        {"time",          &time},
+                                        {"invalidOpCode", &invalidOpCode},
+                                        {"divZero",       &divideZero},
+//                                        {"mem",           &mem},
+                                        {"ps",            &ps},
+//                                        {"sem",           &sem},
+//                                        {"pipe",          &pipe},
+//                                        {"phylo",         &phylo},
+                                        {"memTest",       &memTest},
+                                        {"prioTest",      &prioTest},
+                                        {"processTest",   &processTest},
+                                        {"semSyncTest",   &semSyncTest},
+                                        {"semNoSyncTest", &semNoSyncTest},
+//                                        {"kill",          &kill},
+//                                        {"nice",          &nice},
+//                                        {"block",         &block}
+                                        };
 
-#define NUM_COMMANDS_NO_ARG 5
-static noArgCommand noArgumentCommands[NUM_COMMANDS_NO_ARG] = {{"help", &help},
-                                   { "divZero", &divideZero},
-                                   { "invalidOpCode", &invalidOpCode},
-//                                   {"inforeg", &infoReg},
-                                   {"time", &time},
-                                   };
-
-#define NUM_LOOP_COMMANDS 2
-static noArgCommand loopCommands[NUM_LOOP_COMMANDS]= {{"primos", &nextPrime},
-                                                      {"fibonacci", &nextFibo}};
-
-#define NUM_COMMANDS_ARG 1
-static argCommand argumentCommands[NUM_COMMANDS_ARG] = {{"printmem", &printMem}};
+//
+#define CANT_PIPE_COMMS 5
+command pipeComms[CANT_PIPE_COMMS] = {
+//                                        {"cat", &cat},
+//                                      {"wc", &wc},
+//                                      {"loop", &loop},
+//                                      {"filter", &filter},
+                                      {"phylo", &phyloProblem}};
 
 
 
-enum inputCases{SINGLE_FUNCTION = 1, SINGLE_FUNC_W_ARG, PIPE_NO_ARGS, PIPE_ONE_ARG, PIPE_TWO_ARGS};
-
-#define CANT_ERR_MESSAGES 3
+#define CANT_ERR_MESSAGES 4
 char * errMessages[CANT_ERR_MESSAGES] = {" : comando no encontrado\n",
                                         "Combinacion de argumentos no valida\n",
-                                        " : comando no encontrado / Combinacion invalida de argumentos\n"};
+                                        " : comando no encontrado / Combinacion invalida de argumentos\n",
+                                        "El pipe ('|') debe usarse unicamente entre dos funciones (ejecutar /help para ver las permitidas)"};
 
 
 
 #define IS_SPACE_OR_TAB(c) ((c) == ' ' || (c) == '\t')
 // funcion para parsear el string, cada fila de la matriz es un string
 // devuelve cantidad de palabras (incluyendo el pipe) que encontro
-int parseString(char m[][MAX_LEN_COMMAND], const char * src){
+//  "pepe roro dfasdfasdfadsfasdfa"
+static int parseString(char m[][MAX_LEN_COMMAND], const char * src){
     int dim = 0;
     int j = 0;
     int i = 0;
@@ -67,7 +78,7 @@ int parseString(char m[][MAX_LEN_COMMAND], const char * src){
         if (!IS_SPACE_OR_TAB(src[i])){
             m[dim][j++] = src[i];
             //si estoy terminando el string!
-            if ( src[i + 1] == 0){
+            if (src[i + 1] == 0){
                 m[dim][j] = 0;
                 dim++;
             }
@@ -85,10 +96,50 @@ int parseString(char m[][MAX_LEN_COMMAND], const char * src){
     return dim;
 }
 
-void errArguments(char * str, char * errMsg, char * errFlag){
+static void errArguments(char * str, char * errMsg, char * errFlag){
     printkfd(STDERR, str);
     printkfd(STDERR, errMsg);
-    *errFlag=TRUE;
+    *errFlag=true;
+}
+
+int addNoPipeFunc(char ** argv, int argc, bool backgroundFlag){
+    for(int i = 0 ; i < CANT_NO_PIPE_COMMS; ++i){
+        if(strcmp(argv[0],noPipeComms[i].name) == 0){
+            if(sysAddProcess(noPipeComms[i].function, argc, argv, !backgroundFlag) == ERROR)
+                return ERROR;
+            return 0;
+        }
+    }
+    return ERROR;
+}
+
+//TODO: conectar con pipes a los procesos
+//Pipe processes will always run in foreground
+int addPipeFunc(char ** argv, int argc){
+    bool firstAdded = false, secondAdded = false;
+
+    for(int i = 0 ; i < CANT_PIPE_COMMS; ++i){
+        if(strcmp(argv[0],pipeComms[i].name) == 0){
+            if(sysAddProcess(pipeComms[i].function, argc, argv, true) == ERROR)
+                return ERROR;
+            firstAdded = true;
+        }
+        else if(strcmp(argv[2],pipeComms[i].name) == 0){
+            if(sysAddProcess(pipeComms[i].function, argc, argv, true) == ERROR)
+                return ERROR;
+            secondAdded = true;
+        }
+
+        if(firstAdded && secondAdded)
+            return 0;
+    }
+    return ERROR;
+}
+
+void prepareArgv(char * dest[], char src[][MAX_LEN_COMMAND], int argc){
+    for (int i = 0; i < argc; ++i) {
+        dest[i] = src[i];
+    }
 }
 
 void stopForCommand(){
@@ -113,79 +164,47 @@ void stopForCommand(){
     currentLine[i] = 0;
 
     char strings[AUXVECTORLENGTH][MAX_LEN_COMMAND];
-    int stringsDim = parseString(strings , currentLine);
-    char errFlag = FALSE;
-    char pipeFlag=FALSE;
-    argTask argTask1, argTask2;
-    noArgTask noArgTask1, noArgTask2;
+    int argc = parseString(strings , currentLine);
+    bool errFlag = false;
+    bool pipeFlag = false;
+    bool backgroundFlag = false;
 
-    switch (stringsDim) {
-        case SINGLE_FUNCTION:
-            if(!addLoopFunc(&noArgTask1,strings[0]) && !addNoArgFunc(&noArgTask1,strings[0]))
-                errArguments(strings[0], errMessages[0], &errFlag);
-            break;
-        case SINGLE_FUNC_W_ARG:
-            if(!addArgFunc(&argTask1,strings[0],strings[1])){
-                errArguments(strings[0], errMessages[2], &errFlag);
-            }
-            break;
-        case PIPE_NO_ARGS:
-            if(strcmp(strings[1],PIPE) == 0){
-                pipeFlag=TRUE;
-                if(!addLoopFunc(&noArgTask1,strings[0]) && !addNoArgFunc(&noArgTask1,strings[0]))
-                    errArguments(strings[0], errMessages[0], &errFlag);
-                if(!addLoopFunc(&noArgTask2,strings[2]) && !addNoArgFunc(&noArgTask2,strings[2]))
-                    errArguments(strings[2], errMessages[0], &errFlag);
-            }
-            else{
-                printErr(errMessages[1]);
-                errFlag=TRUE;
-            }
-            break;
-        case PIPE_ONE_ARG:
-            if(strcmp(strings[1],PIPE) == 0){
-                pipeFlag=TRUE;
-                if(!addLoopFunc(&noArgTask1,strings[0]) && !addNoArgFunc(&noArgTask1,strings[0]))
-                    errArguments(strings[0], errMessages[0], &errFlag);
-                if(!addArgFunc(&argTask2,strings[2],strings[3]))
-                    errArguments(strings[2], errMessages[2], &errFlag);
-            }
-            else if(strcmp(strings[2],PIPE) == 0){
-                pipeFlag=TRUE;
-                if(!addArgFunc(&argTask1,strings[0],strings[1]))
-                    errArguments(strings[0], errMessages[2], &errFlag);
-                if(!addLoopFunc(&noArgTask2,strings[3]) && !addNoArgFunc(&noArgTask2,strings[3]))
-                    errArguments(strings[3], errMessages[0], &errFlag);
-            }
-            else{
-                printErr(errMessages[1]);
-                errFlag=TRUE;
-            }
-            break;
-        case PIPE_TWO_ARGS:
-            if(strcmp(strings[2],PIPE) == 0){
-                pipeFlag=TRUE;
-                if(!addArgFunc(&argTask1,strings[0],strings[1]))
-                    errArguments(strings[0], errMessages[2], &errFlag);
-                if(!addArgFunc(&argTask2,strings[3],strings[4]))
-                    errArguments(strings[3], errMessages[2], &errFlag);
-            }
-            else{
-                printErr(errMessages[1]);
-                errFlag=TRUE;
-            }
-            break;
-        default:
-            printErr(errMessages[1]);
-            errFlag=TRUE;
+
+    /*
+     * TODO:
+     * Casos posible:
+     * 1) Funcion sola (con o sin args)
+     * 2) Pipe -> siempre va a estar en posicion 1 del array
+     */
+
+    if(strcmp(strings[1],PIPE) == 0){
+        //Pipe functions do not recieve arguments, so format will be "func1 | func2"
+        if(argc == 3)
+            pipeFlag = true;
+        else{
+            printErr(errMessages[3]);
+            errFlag=true;
+        }
     }
+    else if(argc > 1 && strcmp(strings[--argc],AMPER) == 0)
+        backgroundFlag = true;
+
 
     if(!errFlag){
+        char * argv[AUXVECTORLENGTH];
+        prepareArgv(argv, strings, argc);
+        sysClearScreen();
+
         if(pipeFlag)
-            sysClearScreen();
-        sysRunTasks();
+            addPipeFunc(argv, argc);
+        else
+            addNoPipeFunc(argv, argc, backgroundFlag);
+
     }
 }
+
+
+
 
 
 

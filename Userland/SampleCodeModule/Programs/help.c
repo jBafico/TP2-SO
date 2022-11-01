@@ -2,7 +2,7 @@
 
 #define CANT_MESSAGES 14
 
-void help(uint8_t fd){
+void help(int argc, char ** argv){
     char* helpMsg[]={ 
     "* help - Muestra las funciones disponibles para utilizar\n",
     "* divZero - Genera una excepcion de division por zero\n",
@@ -19,7 +19,7 @@ void help(uint8_t fd){
     "Analogamente, la tecla del 2 suspende el programa de la derecha\n",
     "Tanto fuera como dentro del pipe, presionando la tecla ESC\nse cancelan todas las ejecuciones y se retorna a la SHELL\n"};
 
-    printkfd(fd,"Las funciones disponibles para utilizar son:\n");
+    printk("Las funciones disponibles para utilizar son:\n");
     for (int i = 0; i < CANT_MESSAGES; i++)
-        printkfd(fd,helpMsg[i]);
+        printk(helpMsg[i]);
 }

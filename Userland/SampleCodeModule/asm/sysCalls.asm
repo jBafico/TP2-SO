@@ -21,7 +21,7 @@ section .data
                     SYSWAIT equ 77
                     SYSKILLPROCESS equ 78
                     SYSGETPID equ 79
-                    SYSBLOCKPROCESS equ 80,
+                    SYSBLOCKPROCESS equ 80
                     SYSSETSTATE equ 81
                     SYSSETPRIO equ 82
                     SYSREADYPROCESS equ 83
@@ -36,10 +36,26 @@ section .data
                     SYSPIPEREAD equ 92
                     SYSYIELD equ 93
     SYSTIME equ 201
+    SYSGETPROCESSLIST equ 202
 
 section .text
 
 ; uso esta syscall para imprimir caracter en pantalla, aparece con sys
+
+sysGetProcessList:
+    push rbp
+    mov rbp, rsp
+    mov rax, SYSGETPROCESSLIST
+
+    ;en rdi tengo el fileDescriptor ya
+    ;en rsi tengo el puntero al caracter
+    ;en rdx tengo la longitud
+
+    int 80h
+    mov rsp, rbp
+    pop rbp
+    ret
+
 
 sysWrite:
     push rbp

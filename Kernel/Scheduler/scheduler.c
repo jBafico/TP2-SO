@@ -3,6 +3,7 @@
 #include <memManager.h>
 #include <interrupts.h>
 #include <naiveConsole.h>
+#include <lib.h>
 
 static uint64_t currentPID = 0;
 static uint64_t cyclesLeft;
@@ -152,31 +153,29 @@ void * schedule(void * rsp){
 }
 
 int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int foreground, int *fd){
-    if (entryPoint == NULL) {
-        return -1;
-    }
+    if (entryPoint == NULL)
+        return ERROR;
 
     processNode *newProcess = malloc(sizeof(processNode));
 
-    if (newProcess == NULL) {
-        return -1;
-    }
+    if (newProcess == NULL)
+        return ERROR;
 
     if (initializeProcessControlBlock(&newProcess->process, argv[0], foreground,fd) == -1) {
         free(newProcess);
-        return -1;
+        return ERROR;
     }
 
     char **arguments = malloc(sizeof(char *) * argc);
     if (arguments == NULL) {
         free(newProcess);
-        return -1;
+        return ERROR;
     }
 
     if (getArguments(arguments, argv, argc) == -1) {
         free(newProcess);
         free(arguments);
-        return -1;
+        return ERROR;
     }
 
     newProcess->process.argc = argc;

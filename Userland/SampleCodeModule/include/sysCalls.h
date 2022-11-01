@@ -3,6 +3,7 @@
 
 #include "clock.h"
 #include <stdint.h>
+#include "commands.h"
 typedef enum {READY, BLOCKED, TERMINATED} pState;
 
 int sysWrite(uint64_t fd,const char *c, uint64_t length);
@@ -33,6 +34,7 @@ int sysPipeClose(int pipeId);
 int sysPipeRead(int pipeId);
 int sysPipeWrite( int pipeId, char * src);
 void sysYield();
+int sysGetProcessList(processStruct * processStruct);
 
 
 
