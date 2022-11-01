@@ -32,11 +32,11 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
 //                                        {"sem",           &sem},
 //                                        {"pipe",          &pipe},
 //                                        {"phylo",         &phylo},
-                                        {"memTest",       &memTest},
-                                        {"prioTest",      &prioTest},
-                                        {"processTest",   &processTest},
-                                        {"semSyncTest",   &semSyncTest},
-                                        {"semNoSyncTest", &semNoSyncTest},
+//                                        {"memTest",       &memTest},
+//                                        {"prioTest",      &prioTest},
+//                                        {"processTest",   &processTest},
+//                                        {"semSyncTest",   &semSyncTest},
+//                                        {"semNoSyncTest", &semNoSyncTest},
 //                                        {"kill",          &kill},
 //                                        {"nice",          &nice},
 //                                        {"block",         &block}
@@ -49,7 +49,8 @@ command pipeComms[CANT_PIPE_COMMS] = {
 //                                      {"wc", &wc},
 //                                      {"loop", &loop},
 //                                      {"filter", &filter},
-                                      {"phylo", &phyloProblem}};
+//                               {"phylo", &phyloProblem}
+};
 
 
 
@@ -64,7 +65,7 @@ char * errMessages[CANT_ERR_MESSAGES] = {" : comando no encontrado\n",
 #define IS_SPACE_OR_TAB(c) ((c) == ' ' || (c) == '\t')
 
 
-firstEntry = true;
+bool firstEntry = true;
 void initalizeShell(int argc, char ** argv){
 
      if(firstEntry) {
@@ -166,7 +167,6 @@ void stopForCommand(){
     char c;
     char currentLine[MAX_LEN_COMMAND];
     int i = 0;
-    restartStates();
 
     while((c=getChar()) != '\n'){
         if(i>0 && c == '\b'){

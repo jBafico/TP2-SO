@@ -1,9 +1,10 @@
 #ifndef SAMPLECODEMODULE_SYSCALLS_H
 #define SAMPLECODEMODULE_SYSCALLS_H
 
-#include "clock.h"
+#include <clock.h>
 #include <stdint.h>
-#include "commands.h"
+#include <commands.h>
+
 typedef enum {READY, BLOCKED, TERMINATED} pState;
 
 int sysWrite(uint64_t fd,const char *c, uint64_t length);

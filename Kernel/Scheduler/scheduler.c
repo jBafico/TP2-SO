@@ -38,11 +38,6 @@ char * strcpy(char * dest, char * src){
 }
 
 
-
-
-
-
-
 void init(int argc, char ** argv){
     while(1){
         _hlt();
@@ -110,7 +105,6 @@ void initializeScheduler() {
 }
 
 void * schedule(void * rsp){
-    ncPrint("i am scheduling!");
     if (currentProcess != NULL) {
         if (currentProcess->process.state == READY && cyclesLeft > 0) {
             cyclesLeft--;
@@ -189,7 +183,6 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
     if (newProcess->process.foreground && newProcess->process.ppid) {
         blockProcess(newProcess->process.ppid);
     }
-    ncPrint("Process Initialization Success");
     return newProcess->process.pid;
 }
 

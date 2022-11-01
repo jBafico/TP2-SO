@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 void stopForCommand();
-void restartStates();
 void initalizeShell(int argc, char ** argv);
 
 #endif //SAMPLECODEMODULE_SHELL_H

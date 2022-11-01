@@ -7,6 +7,28 @@ GLOBAL sysInfoReg
 GLOBAL sysSleep
 GLOBAL sysTask
 GLOBAL sysRunTasks
+GLOBAL sysMalloc
+GLOBAL sysGetProcessList
+GLOBAL sysFree
+GLOBAL sysAddProcess
+GLOBAL sysWait
+GLOBAL sysKillProcess
+GLOBAL sysGetPID
+GLOBAL sysBlockProcess
+GLOBAL sysSetState
+GLOBAL sysSetPriority
+GLOBAL sysReadyProcess
+GLOBAL sysSemWait
+GLOBAL sysSemClose
+GLOBAL sysSemOpen
+GLOBAL sysSemPost
+GLOBAL sysSemStatus
+GLOBAL sysPipeOpen
+GLOBAL sysPipeClose
+GLOBAL sysPipeRead
+GLOBAL sysPipeWrite
+GLOBAL sysYield
+
 
 section .data
     SYSREAD equ 0
@@ -236,7 +258,7 @@ push rbp
         pop rbp
         ret
 ;int sysReadyProcess(uint64_t pid);
-sysreadyProcess:
+sysReadyProcess:
 push rbp
     mov rbp, rsp
     mov rax, SYSREADYPROCESS
