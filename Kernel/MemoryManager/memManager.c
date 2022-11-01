@@ -1,6 +1,7 @@
 #include <memManager.h>
 
 
+#ifndef COMPILEBUDDY
 //Implementation Based on K&R Book
 
 typedef long Align;     //To align upper limit
@@ -137,3 +138,6 @@ void * memoryInformation(memInfo * m){
     m->totalMemory = currentMemInfo.totalMemory;
 
 }
+
+
+#endif
