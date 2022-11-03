@@ -152,7 +152,7 @@ int sys_mem(uint8_t * mem, uint64_t address){
 }
 
 //TODO ESTO NO TIENE QUE DEVOLVER INT XQ AHORA HAY CASOS DE DEVOLVER VOID *, chequear casteo de malloc
-int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
+uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
     //TODO OJOCON ESTO  
     _sti();
     int FD[]={STDIN, STDOUT};
@@ -171,12 +171,12 @@ int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2,
             sys_sleep((uint64_t) arg0);
             break;
         case SYS_MEM:  //arg0: uint8_t * mem, array de 32 lugares de 8bits, arg1: uint64_t address, direc para buscar
-            return sys_mem((uint8_t *) arg0, (uint64_t) arg1);
+            return (uint64_t) sys_mem((uint8_t *) arg0, (uint64_t) arg1);
             break;
             //case SYS_REGISTERS:
             //return sys_registers( (uint64_t *) arg0);
         case SYS_MALLOC:
-            return (uint64_t) malloc((uint64_t) arg0);
+            return malloc((uint64_t) arg0);
         case SYS_FREE:
             free((void*) arg0);
             break;

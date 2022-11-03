@@ -119,9 +119,8 @@ int main()
     //while (getKey() != ENTER); //Se consume hasta el \n
     ncClear();
 
-	initMemMan((void *)0x600000,0x800000 - 0x600000);
+	initMemMan((void *)0x700000,0x900000 - 0x700000);
 	initializeScheduler();
-
 	char * argv[] = { "Userland Initialization"};
 	addProcess(sampleCodeModuleAddress,1,argv,1,NULL);
 

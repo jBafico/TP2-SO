@@ -1,7 +1,7 @@
 #include <memManager.h>
 
 
-#ifndef COMPILEBUDDY
+#ifdef COMPILEBUDDY
 //Implementation Based on K&R Book
 
 typedef long Align;     //To align upper limit

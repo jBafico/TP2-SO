@@ -5,8 +5,8 @@
 
 
  #define MAX_BLOCKS 128
- #define MAX_MEMORY (32 * 1024 * 1024)
-
+ //#define MAX_MEMORY (32 * 1024 * 1024)
+#define MAX_MEMORY (0x700000 - 0x600000)
  typedef struct MM_rq {
      void *address;
      uint32_t size;
@@ -26,6 +26,7 @@
          while (rq < MAX_BLOCKS && total < MAX_MEMORY) {
              mm_rqs[rq].size = GetUniform(MAX_MEMORY - total - 1) + 1;
              mm_rqs[rq].address = sysMalloc((uint64_t)mm_rqs[rq].size);
+             printk("we have memory");
              if (mm_rqs[rq].address == NULL) {
                  printErr("No memory left\n");
                  return;

@@ -10,9 +10,10 @@ void ps(int argc, char ** argv){
     processStruct processes[MAXPROCESSES];
     int processesRecieved = sysGetProcessList(processes);
 
+    printk("pid,name,sp,bp,type,state\n");
     for ( int i = 0; i < processesRecieved ; i++) {
         processStruct current = processes[i];
-        printk("%d,%s,%d,%d,%s,%s\n", current.pid, current.name, current.stackPointer, current.basePointer, current.type,
+        printk("%d,%s,%x,%x,%s,%s\n", current.pid, current.name, current.stackPointer, current.basePointer, current.type,
                current.state);
     }
 

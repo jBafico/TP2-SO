@@ -5,7 +5,7 @@
 #define MIN_BLOCK 64
 
 
-#ifdef COMPILEBUDDY
+#ifndef COMPILEBUDDY
 
 typedef enum
 {
