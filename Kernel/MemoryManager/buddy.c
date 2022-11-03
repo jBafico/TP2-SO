@@ -5,7 +5,7 @@
 #define MIN_BLOCK 64
 
 
-#ifndef COMPILEBUDDY
+#ifdef BUDDY
 
 typedef enum
 {
@@ -50,8 +50,8 @@ static BNode *newBNode(memoryManagerADT mm, size_t size, void *memDir, size_t le
 }
 
 
-//TODO CAMBIAR NOMBRE
-void initMemMan(void *startDir, size_t size)
+
+void initMemMan(void *heapBase, size_t heapSize)
 {
     if (size < MIN_BLOCK || size % 2 != 0)
     {
@@ -59,8 +59,8 @@ void initMemMan(void *startDir, size_t size)
     }
     mm = (void *)STRUCT_POS;
     mm->usedSize = 0;
-    mm->memorySize = size;
-    mm->memoryDir = startDir;
+    mm->memorySize = heapSize;
+    mm->memoryDir = heapBase;
     mm->root = (void *)((char *)mm + sizeof(memoryManagerCDT));
     mm->nextBNodePos = (void *)((char *)mm->root + sizeof(BNode));
     mm->root->left = NULL;
@@ -68,7 +68,7 @@ void initMemMan(void *startDir, size_t size)
     mm->root->state = FREE;
     mm->root->memDir = mm->memoryDir;
     mm->root->level = 0;
-    mm->root->size = size;
+    mm->root->size = heapSize;
 
 
 }
@@ -126,9 +126,9 @@ static void *allocRecursive(BNode *current, size_t size, memoryManagerADT mm)
     return NULL;
 }
 
-void *malloc( uint64_t bytes)
+void *malloc( uint64_t nBytes)
 {
-    size_t size = (size_t)bytes;
+    size_t size = (size_t)nBytes;
     void *toReturn = allocRecursive(mm->root, size, mm);
     return toReturn;
 }
@@ -173,9 +173,9 @@ static int buddyFreeMemoryRec(memoryManagerADT mm, void *p, BNode *node)
     return 0;
 }
 
-void free(void *p)
+void free(void *block)
 {
-    buddyFreeMemoryRec(mm, p, mm->root);
+    buddyFreeMemoryRec(mm, block, mm->root);
 }
 
 // void printStatus()

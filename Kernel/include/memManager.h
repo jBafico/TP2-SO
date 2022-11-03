@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 
-#ifndef COMPILEBUDDY
+#ifdef BUDDY
 typedef struct info {
     uint64_t availableBytes;
     uint64_t allocatedBytes;
