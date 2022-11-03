@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #define ERROR (-1)
+#define ADD_PROC_ERROR (-2)
 
 #define NULL (void *) 0
 
@@ -31,5 +32,6 @@ char getChar();
 int getStringLength(const char *vec);
 int myAtoi(char * str);
 void *memset(void *destination, int32_t c, uint64_t length);
+char* itoa(int value, char* buffer, int base);
 
 #endif //SAMPLECODEMODULE_LIBRARY_H

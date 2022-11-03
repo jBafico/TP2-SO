@@ -85,9 +85,6 @@ void initalizeDecieveStack(void (*entryPoint)(int, char **),int argc, char ** ar
     fakeStack->base = 0x000;
 }
 
-
-
-
 void initializeScheduler() {
     processes = malloc(sizeof(processList));
     if (processes == NULL) {

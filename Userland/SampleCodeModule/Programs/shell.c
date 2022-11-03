@@ -3,19 +3,12 @@
 #include <clock.h>
 #include <help.h>
 #include <exceptionTester.h>
-#include <printMem.h>
 #include <sysCalls.h>
 #include <semTest.h>
 #include <processTest.h>
 #include <mmTest.h>
 #include <prioTest.h>
 #include <phylo.h>
-
-#define MAX_LEN_COMMAND 128
-#define AUXVECTORLENGTH 20
-
-#define PIPE "|"
-#define AMPER "&"
 
 typedef struct command{
     char * name;
@@ -54,35 +47,34 @@ command pipeComms[CANT_PIPE_COMMS] = {
 
 
 
-#define CANT_ERR_MESSAGES 4
+#define CANT_ERR_MESSAGES 6
 char * errMessages[CANT_ERR_MESSAGES] = {" : comando no encontrado\n",
                                         "Combinacion de argumentos no valida\n",
                                         " : comando no encontrado / Combinacion invalida de argumentos\n",
-                                        "El pipe ('|') debe usarse unicamente entre dos funciones (ejecutar /help para ver las permitidas)"};
+                                        "El pipe ('|') debe usarse unicamente entre dos funciones (ejecutar /help para ver las permitidas)\n",
+                                        "El proceso no pudo ser creado correctamente\n",
+                                        "El pipe no pudo ser abierto correctamente\n"};
 
 
 
 #define IS_SPACE_OR_TAB(c) ((c) == ' ' || (c) == '\t')
 
+static int pipeId = 100;
 
-bool firstEntry = true;
+
 void initalizeShell(int argc, char ** argv){
+    printk("OMG USER HI!! Welcome to the LettuceOS Shell!\n\n");
+    help(0,NULL);
 
-     if(firstEntry) {
-        printk("OMG USER HI!! Welcome to the LettuceOS Shell!\n\n");
-        help(0,NULL);
-    }
-
-    while (firstEntry && getChar() != '\n')
+    while (getChar() != '\n')
         ;
-
-    firstEntry = false;
 
     while (1){
         printk("> ");
         stopForCommand();
     }
 }
+
 // funcion para parsear el string, cada fila de la matriz es un string
 // devuelve cantidad de palabras (incluyendo el pipe) que encontro
 //  "pepe roro dfasdfasdfadsfasdfa"
@@ -117,44 +109,99 @@ static int parseString(char m[][MAX_LEN_COMMAND], const char * src){
     return dim;
 }
 
-static void errArguments(char * str, char * errMsg, char * errFlag){
+static void errArguments(char * str, char * errMsg){
     printkfd(STDERR, str);
     printkfd(STDERR, errMsg);
-    *errFlag=true;
 }
 
 int addNoPipeFunc(char ** argv, int argc, bool backgroundFlag){
     for(int i = 0 ; i < CANT_NO_PIPE_COMMS; ++i){
         if(strcmp(argv[0],noPipeComms[i].name) == 0){
-            if(sysAddProcess(noPipeComms[i].function, argc, argv, !backgroundFlag) == ERROR)
-                return ERROR;
+            if(sysAddProcess(noPipeComms[i].function, argc, argv, !backgroundFlag, NULL) == ERROR)
+                return ADD_PROC_ERROR;
             return 0;
         }
     }
     return ERROR;
 }
 
-//TODO: conectar con pipes a los procesos
-//Pipe processes will always run in foreground
-int addPipeFunc(char ** argv, int argc){
-    bool firstAdded = false, secondAdded = false;
-
-    for(int i = 0 ; i < CANT_PIPE_COMMS; ++i){
-        if(strcmp(argv[0],pipeComms[i].name) == 0){
-            if(sysAddProcess(pipeComms[i].function, argc, argv, true) == ERROR)
-                return ERROR;
-            firstAdded = true;
-        }
-        else if(strcmp(argv[2],pipeComms[i].name) == 0){
-            if(sysAddProcess(pipeComms[i].function, argc, argv, true) == ERROR)
-                return ERROR;
-            secondAdded = true;
-        }
-
-        if(firstAdded && secondAdded)
-            return 0;
+void getPipeFunc(char * n1, char * n2, command * f1, command * f2){
+    for (int i = 0; i < CANT_PIPE_COMMS; i++) {
+        if(strcmp(n1, pipeComms[i].name) == 0)
+            *f1 = pipeComms[i];
+        else if(strcmp(n2 ,pipeComms[i].name) == 0)
+            *f2 = pipeComms[i];
     }
-    return ERROR;
+}
+
+//Pipe processes will always run in foreground
+int addPipeFunc(char ** argv){
+    char * argv1[1] = {argv[0]};
+    char * argv2[1] = {argv[2]};
+
+    command f1 = {NULL, NULL};
+    command f2 = {NULL, NULL};
+
+    getPipeFunc(argv[0], argv[2], &f1, &f2);
+
+    if(f1.name == NULL && f2.name == NULL)
+        return ERROR;
+    else if (f1.name == NULL)
+        return FIRST_ERROR;
+    else if(f2.name == NULL)
+        return SECOND_ERROR;
+
+    int pipe = sysPipeOpen(pipeId++);
+
+    if(pipe == ERROR)
+        return PIPE_ERROR;
+
+    int fd1[2] = {pipe, 1};
+    int fd2[2] = {0, pipe};
+
+    if(sysAddProcess(f1.function, 1, argv1, true, fd1) == ERROR){
+        sysPipeClose(pipe);
+        return ADD_PROC_ERROR;
+    }
+
+    if(sysAddProcess(f2.function, 1, argv2, true, fd2) == ERROR){
+        sysPipeClose(pipe);
+        return ADD_PROC_ERROR;
+    }
+
+    int endOfFile = EOF;
+    sysPipeWrite(pipe, (char *)&endOfFile);
+
+    sysPipeClose(pipe);
+    printk("\n");
+
+    return 0;
+}
+
+void handlePipe(char ** argv, int argc){
+    if(argc != 3) {
+        printErr(errMessages[3]);
+    }
+    else {
+        switch (addPipeFunc(argv)) {
+            case FIRST_ERROR:
+                errArguments(argv[0], errMessages[0]);
+                break;
+            case SECOND_ERROR:
+                errArguments(argv[2], errMessages[0]);
+                break;
+            case ERROR:
+                errArguments(argv[0], errMessages[0]);
+                errArguments(argv[2], errMessages[0]);
+                break;
+            case ADD_PROC_ERROR:
+                printErr(errMessages[4]);
+                break;
+            case PIPE_ERROR:
+                printErr(errMessages[5]);
+                break;
+        }
+    }
 }
 
 void prepareArgv(char * dest[], char src[][MAX_LEN_COMMAND], int argc){
@@ -183,43 +230,36 @@ void stopForCommand(){
 
     currentLine[i] = 0;
 
-    char strings[AUXVECTORLENGTH][MAX_LEN_COMMAND];
+    char strings[AUXVECTORLENGTH][MAX_LEN_COMMAND] = {0};
     int argc = parseString(strings , currentLine);
-    bool errFlag = false;
-    bool pipeFlag = false;
     bool backgroundFlag = false;
 
-
     /*
-     * TODO:
      * Casos posible:
      * 1) Funcion sola (con o sin args)
      * 2) Pipe -> siempre va a estar en posicion 1 del array
      */
 
-    if(strcmp(strings[1],PIPE) == 0){
-        //Pipe functions do not recieve arguments, so format will be "func1 | func2"
-        if(argc == 3)
-            pipeFlag = true;
-        else{
-            printErr(errMessages[3]);
-            errFlag=true;
-        }
-    }
-    else if(argc > 1 && strcmp(strings[--argc],AMPER) == 0)
-        backgroundFlag = true;
-
-
-    if(!errFlag){
-        char * argv[AUXVECTORLENGTH];
+    if(argc > 0){
+        char * argv[AUXVECTORLENGTH] = {0};
         prepareArgv(argv, strings, argc);
-        sysClearScreen();
 
-        if(pipeFlag)
-            addPipeFunc(argv, argc);
-        else
-            addNoPipeFunc(argv, argc, backgroundFlag);
+        //Pipe functions do not recieve arguments, so format will be "func1 | func2"
+        if(strcmp(strings[1],PIPE) == 0)
+            handlePipe(argv, argc);
+        else{
+            if(argc > 1 && strcmp(strings[--argc],AMPER) == 0)
+                backgroundFlag = true;
 
+            switch (addNoPipeFunc(argv, argc, backgroundFlag)) {
+                case ERROR:
+                    errArguments(argv[0],errMessages[0]);
+                    break;
+                case ADD_PROC_ERROR:
+                    printErr(errMessages[4]);
+                    break;
+            }
+        }
     }
 }
 

@@ -1,25 +1,25 @@
 #include <library.h>
 
-#define CANT_MESSAGES 14
+#define CANT_MESSAGES 13
 
 void help(int argc, char ** argv){
     char* helpMsg[]={ 
-    "* help - Muestra las funciones disponibles para utilizar\n",
-    "* divZero - Genera una excepcion de division por zero\n",
-    "* invalidOpCode - Genera una excepción de Operation Code Invalido\n",
-    "* inforeg - Imprime en pantalla el valor de todos los registros.\nDebera primero tocar la letra CTRL para sacar una snapshot de los registros\n",
-    "* printmem - Recibe como argumento un puntero, realiza en memoria un\nvolcado de 32 bytes a partir de la direccion recibida como\nargumento y lo imprime en pantalla\n",
-    "* time - Despliega en pantalla el dia y la hora del sistema\n",
-    "* primos - Despliega en pantalla los numeros primos\n",
-    "* fibonacci - Despliega en pantalla los numeros de la sucesion de fibonacci\n",
-    "* | - El pipe se puede utilizar para poder correr dos funciones en simultaneo\n",
-    "      Ejemplo: Func1 | Func2\n\n",
-    "Para suspender la ejecucion de un programa SIN pipe,\nse debe presionar la tecla del 1.\n",
-    "Dentro del pipe, la tecla del 1 suspende la ejecucion del \nprograma a la izquierda de la pantalla.\n",
-    "Analogamente, la tecla del 2 suspende el programa de la derecha\n",
-    "Tanto fuera como dentro del pipe, presionando la tecla ESC\nse cancelan todas las ejecuciones y se retorna a la SHELL\n"};
+    "* help - Muestra las funciones disponibles para utilizar.\n",
+    "* time - Despliega en pantalla el dia y la hora del sistema.\n",
+    "* mem - Imprime el estado de la memoria.\n",
+    "* loop - Imprime su ID con un saludo cada una determinada cantidad de segundos.\n",
+    "* kill - Mata un proceso dado su ID.\n",
+    "* nice - Cambia la prioridad de un proceso dado su ID y la nueva prioridad.\n",
+    "* block - Cambia el estado de un proceso entre bloqueado y listo dado su ID.\n",
+    "* sem - Imprime la lista de todos los semáforos con sus propiedades.\n",
+    "* cat - Imprime el stdin tal como lo recibe.\n",
+    "* wc - Cuenta la cantidad de líneas del input.\n",
+    "* filter - Filtra las vocales del input.\n",
+    "* pipe - Imprime la lista de todos los pipes con sus propiedades.\n",
+    "* phylo - Implementa el problema de los filosofos comensales.\n"};
 
     printk("Las funciones disponibles para utilizar son:\n");
     for (int i = 0; i < CANT_MESSAGES; i++)
         printk(helpMsg[i]);
+    printk("\n");
 }

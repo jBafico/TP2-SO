@@ -17,7 +17,7 @@ void sysClearScreen();
 
 void * sysMalloc(uint64_t nBytes);
 void sysFree(void * block);
-int sysAddProcess(void (*entryPoint)(int, char**), int argc, char** argv, int foreground);
+int sysAddProcess(void (*entryPoint)(int, char**), int argc, char** argv, int foreground, int * fd);
 void sysWait(int pid);
 int sysKillProcess(uint64_t pid);
 int sysGetPID();

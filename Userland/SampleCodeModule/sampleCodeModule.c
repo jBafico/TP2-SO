@@ -5,6 +5,6 @@
 
 int main() {
     char * argv[] = {"Shell"};
-    sysAddProcess(initalizeShell,1,argv,1);
+    sysAddProcess(initalizeShell,1, argv,1, NULL);
     return 0;
 }

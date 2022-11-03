@@ -151,8 +151,8 @@ int sys_mem(uint8_t * mem, uint64_t address){
     return 0;
 }
 
-//TODO ESTO NO TIENE QUE DEVOLVER INT XQ AHORA HAY CASOS DE DEVOLVER VOID *
-int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+//TODO ESTO NO TIENE QUE DEVOLVER INT XQ AHORA HAY CASOS DE DEVOLVER VOID *, chequear casteo de malloc
+int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
     //TODO OJOCON ESTO  
     _sti();
     int FD[]={STDIN, STDOUT};
@@ -176,12 +176,12 @@ int _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2,
             //case SYS_REGISTERS:
             //return sys_registers( (uint64_t *) arg0);
         case SYS_MALLOC:
-            return malloc((uint64_t) arg0);
+            return (uint64_t) malloc((uint64_t) arg0);
         case SYS_FREE:
             free((void*) arg0);
             break;
         case SYS_ADD_PROCESS:
-            return addProcess((void(*)(int, char**))arg0, (int) arg1, (char**) arg2, (int) arg3, FD);
+            return addProcess((void(*)(int, char**))arg0, (int) arg1, (char**) arg2, (int) arg3, (((int *) arg4) == NULL ? FD : (int *) arg4));
         case SYS_WAIT:
             wait((int) arg0);
             break;

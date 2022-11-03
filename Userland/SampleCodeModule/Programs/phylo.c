@@ -2,11 +2,6 @@
 #include <sysCalls.h>
 #include <library.h>
 
-
-
-
-
-
 typedef enum {THINKING, WAITING, EATING} phyloState;
 #define BACKGROUND 0
 #define FOREGROUND 1
@@ -53,7 +48,7 @@ void phyloProblem(int argc, char **argv) {
     printk("\n For the first 2 seconds you will not be able to add philosophers, let them eat.\n\n");
 
     char *args[] = {"Phylo Table"};
-    int tablePID = sysAddProcess(&printTable, 1, args, BACKGROUND);
+    int tablePID = sysAddProcess(&printTable, 1, args, BACKGROUND, NULL);
 
     sysSleep(PHYLO_WAIT);
 
@@ -124,7 +119,7 @@ static int addPhylo() {
 
 
     char *argv[] = {"philosopher", index};
-    philosopher->pid = sysAddProcess(&phyloMain, 2, argv, BACKGROUND);
+    philosopher->pid = sysAddProcess(&phyloMain, 2, argv, BACKGROUND, NULL);
 
     philosophers[philosopherCount++] = philosopher;
 

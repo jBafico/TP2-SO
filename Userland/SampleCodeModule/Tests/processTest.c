@@ -21,7 +21,7 @@
      while (1) {
          for (rq = 0; rq < MAX_PROCESSES; rq++) {
              char *argv[] = {"Loop Process"};
-             p_rqs[rq].pid = sysAddProcess(&endless_loop_print, 1, argv, BACKGROUND);
+             p_rqs[rq].pid = sysAddProcess(&endless_loop_print, 1, argv, BACKGROUND, NULL);
              if (p_rqs[rq].pid == -1) {
                  printErr("Error creating process\n");
                  return;

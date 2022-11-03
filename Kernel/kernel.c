@@ -91,18 +91,6 @@ void runSampleCodeModule(){
 }
 
 
-
-
-void dummy1(int argc, char ** argv){
-	while(1)
-	ncPrint("JuAn");
-}
-
-void dummy2(int argc, char ** argv){
-	while(1)
-	ncPrint("SaNti");
-}
-
 int main()
 {
 	ncPrint("[Kernel Main]");
@@ -128,18 +116,17 @@ int main()
     ncNewline();
     ncPrint("Press ENTER to enter SHELL");
 
-	ncClear();	
+    //while (getKey() != ENTER); //Se consume hasta el \n
+    ncClear();
+
 	initMemMan((void *)0x600000,0x800000 - 0x600000);
 	initializeScheduler();
-	// char *argv[] = {"d1"};
-	// char * argv2[] = {"d2"};
-	// int fd[] = {STDIN,STDOUT};
-	// addProcess(dummy2,1,argv2,1,fd);
-	// addProcess(dummy1,1,argv,1,fd);
-	char * argv[] = { "userland initalizaition"};
-	addProcess(sampleCodeModuleAddress,1,argv,1,0);
-	load_idt();
-    //while (getKey() != ENTER); //Se consume hasta el \n
+
+	char * argv[] = { "Userland Initialization"};
+	addProcess(sampleCodeModuleAddress,1,argv,1,NULL);
+
+    load_idt();
+
 	_hlt();
 	return 0;
 }

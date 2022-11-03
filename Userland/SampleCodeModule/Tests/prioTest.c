@@ -12,7 +12,7 @@
 
      for (i = 0; i < TOTAL_PROCESSES; i++) {
          char *argv[] = {"Loop Process"};
-         pids[i] = sysAddProcess(&endless_loop_print, 1, argv, BACKGROUND);
+         pids[i] = sysAddProcess(&endless_loop_print, 1, argv, BACKGROUND, NULL);
      }
 
      bussy_wait(TOTAL_PROCESSES * WAIT);

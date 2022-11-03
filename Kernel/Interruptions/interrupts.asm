@@ -273,15 +273,17 @@ _int80Handler:
 
 
     ; rdi, numerosyscall
-    ; rsi, arg1
-    ; rdx arg2
-    ;rcx arg3
-    ;r8 arg4
+    ; rsi, arg0
+    ; rdx arg1
+    ;rcx arg2
+    ;r8 arg3
+    ;r9 arg4
     pop rdi
     pop rsi
     pop rdx
     pop rcx
     pop r8
+    pop r9
 
     call _int80Dispatcher
 	;tengo que devolver el valor de retorno, uso section .bss

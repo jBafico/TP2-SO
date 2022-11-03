@@ -55,9 +55,9 @@
 
      for (i = 0; i < PAIR_PROCESSES; i++) {
          char *argv1[] = {"inc process with sem", "1", "1", "10000"};
-         sysAddProcess(&inc, 4, argv1, BACKGROUND);
+         sysAddProcess(&inc, 4, argv1, BACKGROUND, NULL);
          char *argv2[] = {"inc process with sem", "1", "-1", "10000"};
-         sysAddProcess(&inc, 4, argv2, BACKGROUND);
+         sysAddProcess(&inc, 4, argv2, BACKGROUND, NULL);
      }
  }
 
@@ -70,8 +70,8 @@
 
      for (i = 0; i < PAIR_PROCESSES; i++) {
          char *argv1[] = {"inc process without sem", "0", "1", "10000"};
-         sysAddProcess(&inc, 4, argv1, BACKGROUND);
+         sysAddProcess(&inc, 4, argv1, BACKGROUND, NULL);
          char *argv2[] = {"inc process without sem", "0", "-1", "10000"};
-         sysAddProcess(&inc, 4, argv2, BACKGROUND);
+         sysAddProcess(&inc, 4, argv2, BACKGROUND, NULL);
      }
  }
