@@ -5,8 +5,6 @@ GLOBAL picSlaveMask
 GLOBAL haltcpu
 GLOBAL _hlt
 
-
-
 GLOBAL _force_timer_tick
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -19,16 +17,18 @@ GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 GLOBAL _int80Handler
 
+GLOBAL _timer_tick_handler
+GLOBAL _xchg
+
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 
 EXTERN schedule
 EXTERN _int80Dispatcher
-;EXTERN getCtrlFlag
 EXTERN saveRegisters
 
-GLOBAL _timer_tick_handler
-GLOBAL _xchg
+EXTERN timer_handler
+
 
 SECTION .text
 
@@ -263,30 +263,21 @@ _int80Handler:
     push rbp
     mov rbp, rsp
 
-
     push rcx
     push rdx
     push rsi
     push rdi
     push rax
-    ;el stack queda rax, rdi, rsi, rdx, rcx
 
-
-    ; rdi, numerosyscall
-    ; rsi, arg0
-    ; rdx arg1
-    ;rcx arg2
-    ;r8 arg3
-    ;r9 arg4
-    pop rdi
-    pop rsi
-    pop rdx
-    pop rcx
-    pop r8
-    pop r9
+    pop rdi ;numSyscall
+    pop rsi ;arg0
+    pop rdx ;arg1
+    pop rcx ;arg2
+    pop r8 ;arg3
+    pop r9 ;arg4
 
     call _int80Dispatcher
-	;tengo que devolver el valor de retorno, uso section .bss
+
 	mov [aux], rax
     mov rsp, rbp
     pop rbp
@@ -305,6 +296,8 @@ _force_timer_tick
 	ret
 _timer_tick_handler:
 	pushAll
+
+    call timer_handler
 
 	mov rdi, rsp ; pasaje de parametro, guardo stack pointer
 	call schedule, ;--> llamar desde aca a nuestro scheduler cuando lo tengamos operativo

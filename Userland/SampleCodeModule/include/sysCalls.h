@@ -37,6 +37,14 @@ int sysPipeWrite( int pipeId, char * src);
 void sysYield();
 int sysGetProcessList(processStruct * processStruct);
 
+typedef struct info {
+    uint64_t availableBytes;
+    uint64_t allocatedBytes;
+    uint64_t totalMemory;
+} memInfo;
+
+int sysMemInfo(memInfo * mem);
+
 
 
 #endif //SAMPLECODEMODULE_SYSCALLS_H

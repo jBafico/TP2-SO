@@ -93,36 +93,12 @@ void runSampleCodeModule(){
 
 int main()
 {
-	ncPrint("[Kernel Main]");
-	ncNewline();
-	ncPrint("  Sample code module at 0x");
-	ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	//ncNewline();
-	//ncPrint("  Calling the sample code module returned: ");
-	//ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	ncNewline();
-	ncNewline();
-
-	ncPrint("  Sample data module at 0x");
-	ncPrintHex((uint64_t)sampleDataModuleAddress);
-	ncNewline();
-	ncPrint("  Sample data module contents: ");
-	ncPrint((char*)sampleDataModuleAddress);
-	ncNewline();
-
-	ncPrint("[Finished]");
-
-    ncNewline();
-    ncNewline();
-    ncPrint("Press ENTER to enter SHELL");
-
-    //while (getKey() != ENTER); //Se consume hasta el \n
     ncClear();
-
 	initMemMan((void *)0x700000,0x900000 - 0x700000);
 	initializeScheduler();
-	char * argv[] = { "Userland Initialization"};
-	addProcess(sampleCodeModuleAddress,1,argv,1,NULL);
+
+    char * argv[] = { "Userland Initialization"};
+    addProcess(sampleCodeModuleAddress,1,argv,1,NULL);
 
     load_idt();
 

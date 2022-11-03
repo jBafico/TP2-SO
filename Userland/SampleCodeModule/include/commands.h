@@ -22,5 +22,11 @@ typedef struct processStruct{
 } processStruct;
 
 void ps(int argc, char ** argv);
+void unblock(int arg, char ** argv);
+void block(int argc, char ** argv);
+void nice(int argc, char ** argv);
+void kill(int arg, char ** argv);
+void loop(int argc, char ** argv);
+void mem(int argc, char ** argv);
 
 #endif //SAMPLECODEMODULE_COMMANDS_H

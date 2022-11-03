@@ -135,7 +135,6 @@ void vprintk(uint64_t fd, const char * fmt, va_list args){
         else {
             switch (*fmt)
             {
-
                 case 'c':
                     putCharacter(fd,va_arg(args, int));
                     break;

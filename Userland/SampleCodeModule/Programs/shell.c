@@ -18,21 +18,19 @@ typedef struct command{
 #define CANT_NO_PIPE_COMMS 23
 command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
                                         {"time",          &time},
-                                        {"invalidOpCode", &invalidOpCode},
-                                        {"divZero",       &divideZero},
-//                                        {"mem",           &mem},
+                                        {"mem",           &mem},
                                         {"ps",            &ps},
 //                                        {"sem",           &sem},
 //                                        {"pipe",          &pipe},
-                                        {"phylo",         &phyloProblem},
                                         {"memTest",       &memTest},
                                         {"prioTest",      &prioTest},
                                         {"processTest",   &processTest},
                                         {"semSyncTest",   &semSyncTest},
                                         {"semNoSyncTest", &semNoSyncTest},
-//                                        {"kill",          &kill},
-//                                        {"nice",          &nice},
-//                                        {"block",         &block}
+                                        {"kill",          &kill},
+                                        {"nice",          &nice},
+                                        {"block",         &block},
+                                        {"unblock",       &unblock}
                                         };
 
 //
@@ -40,9 +38,9 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
 command pipeComms[CANT_PIPE_COMMS] = {
 //                                        {"cat", &cat},
 //                                      {"wc", &wc},
-//                                      {"loop", &loop},
+                                      {"loop", &loop},
 //                                      {"filter", &filter},
-//                               {"phylo", &phyloProblem}
+                               {"phylo", &phyloProblem}
 };
 
 
@@ -66,8 +64,7 @@ void initalizeShell(int argc, char ** argv){
     printk("OMG USER HI!! Welcome to the LettuceOS Shell!\n\n");
     help(0,NULL);
 
-    while (getChar() != '\n')
-        ;
+
 
     while (1){
         printk("> ");
@@ -77,7 +74,6 @@ void initalizeShell(int argc, char ** argv){
 
 // funcion para parsear el string, cada fila de la matriz es un string
 // devuelve cantidad de palabras (incluyendo el pipe) que encontro
-//  "pepe roro dfasdfasdfadsfasdfa"
 static int parseString(char m[][MAX_LEN_COMMAND], const char * src){
     int dim = 0;
     int j = 0;
@@ -118,6 +114,13 @@ int addNoPipeFunc(char ** argv, int argc, bool backgroundFlag){
     for(int i = 0 ; i < CANT_NO_PIPE_COMMS; ++i){
         if(strcmp(argv[0],noPipeComms[i].name) == 0){
             if(sysAddProcess(noPipeComms[i].function, argc, argv, !backgroundFlag, NULL) == ERROR)
+                return ADD_PROC_ERROR;
+            return 0;
+        }
+    }
+    for(int i = 0 ; i < CANT_PIPE_COMMS; ++i){
+        if(strcmp(argv[0],pipeComms[i].name) == 0){
+            if(sysAddProcess(pipeComms[i].function, argc, argv, !backgroundFlag, NULL) == ERROR)
                 return ADD_PROC_ERROR;
             return 0;
         }

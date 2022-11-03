@@ -23,7 +23,7 @@ $(KERNEL): $(LOADEROBJECT) $(STATICLIBS) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_FOL
 	$(LD) $(LDFLAGS) -T kernel.ld -o $@ $^
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I ./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I ./include $(MM) -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@

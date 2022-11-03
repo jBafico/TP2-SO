@@ -101,9 +101,8 @@ static void phyloMain(int argc, char **argv) {
 }
 
 static int addPhylo() {
-    if (philosopherCount == MAX_PHYLOS) {
-        return -1;
-    }
+    if (philosopherCount == MAX_PHYLOS)
+        return ERROR;
 
     sysSemWait(mutex);
     phylo *philosopher = sysMalloc(sizeof(phylo));

@@ -3,37 +3,36 @@
 #include <scheduler.h>
 #include <lib.h>
 #include <naiveConsole.h>
+
 semaphore * semaphores = NULL; //List of semaphores
 static semaphore *getSemaphore(uint32_t id);
 static semaphore *createSemaphore(uint32_t id, uint64_t initialValue);
 static void addSemaphoreToList(semaphore *newSem);
 static void unblockSemProcess(semaphore *sem);
 static void removeSemaphore(semaphore *sem);
-static void blockedProcessesDump(int *blockedProcesses,
-                                 uint16_t blockedProcessesAmount);
+static void blockedProcessesDump(int *blockedProcesses, uint16_t blockedProcessesAmount);
 
 int semOpen(uint32_t id, uint64_t initialValue) {
     semaphore *sem= getSemaphore(id);
 
     if (sem== NULL) {
         sem = createSemaphore(id, initialValue);
-        if (sem == NULL) {
-            return -1;
-        }
+        if (sem == NULL)
+            return ERROR;
     }
 
-    if (sem->listeningProcesses >= MAX_BLOCKED_PROCESSES) {
-        return -1;
-    }
+    if (sem->listeningProcesses >= MAX_BLOCKED_PROCESSES)
+        return ERROR;
 
     sem->listeningProcesses++;
     return id;
 }
 
+//TODO check errors
 int semWait(uint32_t id) {
     semaphore *sem;
     if ((sem = getSemaphore(id)) == NULL) {
-        return -1;
+        return ERROR;
     }
 
     acquire(&(sem->lock));
@@ -49,18 +48,18 @@ int semWait(uint32_t id) {
     return 0;
 }
 
+//TODO check errors
 int semPost(uint32_t id) {
     semaphore *sem;
-    if ((sem = getSemaphore(id)) == NULL) {
-        return -1;
-    }
+    if ((sem = getSemaphore(id)) == NULL)
+        return ERROR;
 
     acquire(&(sem->lock));
-    if (sem->blockedProcessesAmount > 0) {
+
+    if (sem->blockedProcessesAmount > 0)
         unblockSemProcess(sem);
-    } else {
+    else
         sem->value++;
-    }
 
     release(&(sem->lock));
     return 0;
@@ -68,17 +67,14 @@ int semPost(uint32_t id) {
 
 int semClose(uint32_t id) {
     semaphore *sem;
-    if ((sem = getSemaphore(id)) == NULL) {
-        return -1;
-    }
+    if ((sem = getSemaphore(id)) == NULL)
+        return ERROR;
 
-    if (sem->listeningProcesses > 0) {
+    if (sem->listeningProcesses > 0)
         sem->listeningProcesses--;
-    }
 
-    if (sem->listeningProcesses == 0) {
+    if (sem->listeningProcesses == 0)
         removeSemaphore(sem);
-    }
 
     return 0;
 }
@@ -160,9 +156,9 @@ static void addSemaphoreToList(semaphore *newSem) {
 static semaphore *getSemaphore(uint32_t id) {
     semaphore *sem = semaphores;
     while (sem != NULL) {
-        if (sem->id == id) {
+        if (sem->id == id)
             return sem;
-        }
+
         sem = sem->next;
     }
     return NULL;
