@@ -3,7 +3,7 @@
 #include <scheduler.h>
 #include <lib.h>
 #include <naiveConsole.h>
-semaphore * semaphores; //List of semaphores
+semaphore * semaphores = NULL; //List of semaphores
 static semaphore *getSemaphore(uint32_t id);
 static semaphore *createSemaphore(uint32_t id, uint64_t initialValue);
 static void addSemaphoreToList(semaphore *newSem);
@@ -159,7 +159,7 @@ static void addSemaphoreToList(semaphore *newSem) {
 
 static semaphore *getSemaphore(uint32_t id) {
     semaphore *sem = semaphores;
-    while (sem) {
+    while (sem != NULL) {
         if (sem->id == id) {
             return sem;
         }
