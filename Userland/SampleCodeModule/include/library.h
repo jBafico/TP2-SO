@@ -33,5 +33,6 @@ int getStringLength(const char *vec);
 int myAtoi(char * str);
 void *memset(void *destination, int32_t c, uint64_t length);
 char* itoa(int value, char* buffer, int base);
+int isVowel(char c);
 
 #endif //SAMPLECODEMODULE_LIBRARY_H

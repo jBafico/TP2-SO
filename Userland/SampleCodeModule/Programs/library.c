@@ -203,3 +203,11 @@ void *memset(void *destination, int32_t c, uint64_t length) {
 
     return destination;
 }
+
+int isVowel(char c) {
+    if (c >= 'A' && c <= 'Z') {
+        // uppercase
+        return (c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U');
+    }
+    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
+}

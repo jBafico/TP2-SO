@@ -26,7 +26,6 @@
          while (rq < MAX_BLOCKS && total < MAX_MEMORY) {
              mm_rqs[rq].size = GetUniform(MAX_MEMORY - total - 1) + 1;
              mm_rqs[rq].address = sysMalloc((uint64_t)mm_rqs[rq].size);
-             printk("we have memory");
              if (mm_rqs[rq].address == NULL) {
                  printErr("No memory left\n");
                  return;
