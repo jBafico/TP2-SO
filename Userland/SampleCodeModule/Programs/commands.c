@@ -74,9 +74,9 @@ void semInfo(int arg, char ** argv){
 
 
 void cat(int arg, char ** argv){
-    int c;
+    char c;
     while ((c = getChar()) != EOF) {
-        putCharacter(c);
+        putCharacter(STDOUT, c);
     }
 }
 
@@ -84,7 +84,7 @@ void wc(int arg, char ** argv){
     char c;
     int lines = 1;
     while ((c = getChar()) != EOF) {
-        putCharacter(c);
+        putCharacter(STDOUT, c);
         if (c == '\n') {
             lines++;
         }
@@ -96,7 +96,7 @@ void filter(int arg, char ** argv){
     char c;
     while ((c = getChar()) != EOF) {
         if (!isVowel(c)) {
-            putCharacter(c);
+            putCharacter(STDOUT, c);
         }
     }
 }

@@ -28,18 +28,18 @@ int semOpen(uint32_t id, uint64_t initialValue) {
     return id;
 }
 
-//TODO check errors
 int semWait(uint32_t id) {
     semaphore *sem;
-    if ((sem = getSemaphore(id)) == NULL) {
+
+    if ((sem = getSemaphore(id)) == NULL)
         return ERROR;
-    }
 
     acquire(&(sem->lock));
     if (sem->value > 0) {
         sem->value--;
         release(&(sem->lock));
-    } else {
+    }
+    else {
         int currentPID = getProcessPID();
         sem->blockedProcesses[sem->blockedProcessesAmount++] = currentPID;
         release(&(sem->lock));
@@ -172,10 +172,6 @@ static void unblockSemProcess(semaphore *sem) {
     sem->blockedProcessesAmount--;
     readyProcess(PID);
 }
-
-
-
-
 
 int semaphoreInfo(semaphoreData * s){
     int i;

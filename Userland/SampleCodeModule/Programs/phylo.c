@@ -35,15 +35,12 @@ void phyloProblem(int argc, char **argv) {
 
     philosopherCount = 0;
     tableOpen = 1;
-    sysSemOpen(MUTEX_SEM_ID, 1);
+    mutex = sysSemOpen(MUTEX_SEM_ID, 1);
 
     phyloIntro();
 
-    int i = 0;
-    while (i < INITIAL_PHYLOS) {
+    for (int i = 0; i < INITIAL_PHYLOS; i++)
         addPhylo();
-        i++;
-    }
 
     printk("\n For the first 2 seconds you will not be able to add philosophers, let them eat.\n\n");
 
@@ -58,18 +55,16 @@ void phyloProblem(int argc, char **argv) {
         char key = getChar();
         switch (key) {
             case 'a':
-                if (addPhylo() == -1) {
+                if (addPhylo() == -1)
                     printErr("\n You cant add more philosophers to the table.\n\n");
-                } else {
+                else
                     printk("\n One philosopher was added.\n\n");
-                }
                 break;
             case 'r':
-                if (removePhylo() == -1) {
+                if (removePhylo() == -1)
                     printErr("\n You cant leave, you will be here forever.\n\n");
-                } else {
+                else
                     printk("\n A philosopher left, he got tired.\n\n");
-                }
                 break;
             case 'f':
                 printk("\n DING DING The table is closed, you cant eat anymore. \n\n");
@@ -81,11 +76,12 @@ void phyloProblem(int argc, char **argv) {
         }
     }
 
-    for (int i = 0; i < philosopherCount; i++) {
-        sysSemClose(philosophers[i]->sem);
-        sysKillProcess(philosophers[i]->pid);
-        sysFree(philosophers[i]);
+    for (int j = 0; j < philosopherCount; j++) {
+        sysSemClose(philosophers[j]->sem);
+        sysKillProcess(philosophers[j]->pid);
+        sysFree(philosophers[j]);
     }
+
     sysKillProcess(tablePID);
     sysSemClose(MUTEX_SEM_ID);
 }
@@ -127,9 +123,8 @@ static int addPhylo() {
 }
 
 static int removePhylo() {
-    if (philosopherCount == INITIAL_PHYLOS) {
-        return -1;
-    }
+    if (philosopherCount <= INITIAL_PHYLOS)
+        return ERROR;
 
     sysSemWait(mutex);
 
@@ -172,13 +167,11 @@ static void think() {
 static void printTable(int argc, char **argv) {
     while (tableOpen) {
         sysSemWait(mutex);
-        int i;
-        for (i = 0; i < philosopherCount; i++) {
-            if (philosophers[i]->state == EATING) {
+        for (int i = 0; i < philosopherCount; i++) {
+            if (philosophers[i]->state == EATING)
                 putCharacter(STDOUT,'E');
-            } else {
+            else
                 putCharacter(STDOUT,'-');
-            }
             putCharacter(STDOUT,' ');
         }
         putCharacter(STDOUT,'\n');
