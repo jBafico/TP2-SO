@@ -28,5 +28,6 @@ void nice(int argc, char ** argv);
 void kill(int arg, char ** argv);
 void loop(int argc, char ** argv);
 void mem(int argc, char ** argv);
+void semInfo(int arg, char ** argv);
 
 #endif //SAMPLECODEMODULE_COMMANDS_H

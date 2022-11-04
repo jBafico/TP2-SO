@@ -30,7 +30,8 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
                                         {"kill",          &kill},
                                         {"nice",          &nice},
                                         {"block",         &block},
-                                        {"unblock",       &unblock}
+                                        {"unblock",       &unblock},
+                                        {"semInfo",       &semInfo}
                                         };
 
 //

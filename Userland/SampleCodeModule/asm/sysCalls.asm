@@ -30,6 +30,8 @@ GLOBAL sysPipeWrite
 GLOBAL sysYield
 GLOBAL sysMemInfo
 
+GLOBAL sysSemaphoreInfo
+
 
 section .data
     SYSREAD equ 0
@@ -59,6 +61,8 @@ section .data
                     SYSPIPEREAD equ 92
                     SYSYIELD equ 93
                     SYSMEMINFO equ 94
+                    SYSSEMAPHOREINFO equ 95
+                    
                     SYSTIME equ 201
                     SYSGETPROCESSLIST equ 202
 
@@ -66,6 +70,18 @@ section .text
 
 ; uso esta syscall para imprimir caracter en pantalla, aparece con sys
 
+
+
+sysSemaphoreInfo:
+push rbp
+        mov rbp, rsp
+        mov rax, SYSSEMAPHOREINFO
+
+
+        int 80h
+        mov rsp, rbp
+        pop rbp
+        ret
 
 
 sysMemInfo:

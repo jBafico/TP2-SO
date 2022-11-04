@@ -362,6 +362,7 @@ static void freeProcess(processNode *process) {
         free((void *)((char *)process->process.processBP - SIZE_OF_STACK + 1));
         free(process->process.argv);
         free((void *)process);
+        currentPID--;
     }
 }
 
@@ -415,6 +416,14 @@ int getProcessList(processStruct * ps){
         ps[i].basePointer = current->process.processBP;
         ps[i].stackPointer = current->process.processSP;
     }
+    //agregamos el current process
+    strcpy(ps[i].name,currentProcess->process.name);
+    strcpy(ps[i].type, currentProcess->process.foreground ? "Foreground":"Background");
+    strcpy(ps[i].state,"Running");
+    ps[i].pid = currentProcess->process.pid;
+    ps[i].basePointer = currentProcess->process.processBP;
+    ps[i].stackPointer = currentProcess->process.processSP;
+    i++;
     return i;
 }
 

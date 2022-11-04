@@ -42,6 +42,8 @@ enum sysCalls{  SYS_READ = 0,
                 SYS_PIPE_WRITE=91,
                 SYS_PIPE_READ=92,
                 SYS_YIELD=93,
+                SYS_MEM_INFO = 94,
+                SYS_SEMAPHORE_INFO=95,
                 SYS_TIME = 201,
                 SYS_GETPROCESSLIST = 202};
 
@@ -214,6 +216,8 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
             return pipeWrite((int) arg0, (char *) arg1);
         case SYS_GETPROCESSLIST:
             return getProcessList((processStruct *) arg0);
+        case SYS_SEMAPHORE_INFO:
+            return semaphoreInfo( (semaphoreData *) arg0);
         case SYS_YIELD:
             yield();
             break;

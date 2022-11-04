@@ -5,6 +5,7 @@
 #define MAXPROCESSES 20
 #define FIRSTARG 1
 #define SECONDARG 2
+#define MAXSEM 25
 
 #define SECS_LOOP 2
 
@@ -54,6 +55,23 @@ void kill(int arg, char ** argv){
     int pid = myAtoi(argv[FIRSTARG]);
     sysKillProcess(pid);
 }
+
+
+void semInfo(int arg, char ** argv){
+    semaphoreData semaphores[MAXSEM];
+    int activeSems = sysSemaphoreInfo(semaphores);
+    for ( int i = 0; i < activeSems ; i++){
+        semaphoreData current = semaphores[i];
+        printk("sem id: %d | value: %d | blocked processes: %d | listening processes %d\n",
+        current.id,current.value,(int)current.blockedProcessesAmount,(int)current.listeningProcesses);
+        printk("Blocked processes:\n");
+        for ( int j = 0; j < current.blockedProcessesAmount ; j++){
+            printk("|%d",current.blockedProcesses[j]);
+        }
+        printk("\n");
+    }
+}
+
 
 void cat(int arg, char ** argv){
 

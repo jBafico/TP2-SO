@@ -172,3 +172,24 @@ static void unblockSemProcess(semaphore *sem) {
     sem->blockedProcessesAmount--;
     readyProcess(PID);
 }
+
+
+
+
+
+int semaphoreInfo(semaphoreData * s){
+    int i;
+    semaphore* current = semaphores;
+    if ( current == NULL) {
+        ncPrint("im null buddy");
+    }
+    for ( i = 0; current != NULL; i++, current = current->next){
+        s[i].id = current->id;
+        s[i].blockedProcessesAmount = current->blockedProcessesAmount;
+        s[i].listeningProcesses = current->listeningProcesses;
+        for (int j = 0; j < current->blockedProcessesAmount ; j++){
+            s[i].blockedProcesses[j] = current->blockedProcesses[j];
+        }
+    }
+    return i;
+}

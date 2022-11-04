@@ -21,6 +21,7 @@ all: $(KERNEL)
 
 $(KERNEL): $(LOADEROBJECT) $(STATICLIBS) $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_FOLDERS)
 	$(LD) $(LDFLAGS) -T kernel.ld -o $@ $^
+	
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I ./include $(MM) -c $< -o $@

@@ -80,3 +80,5 @@ fabric.properties
 .vscode/settings.json
 
 
+run.sh
+.gdbinit

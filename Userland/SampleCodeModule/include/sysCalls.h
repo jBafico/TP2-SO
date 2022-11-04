@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <commands.h>
 
+#define MAX_BLOCKED_PROCESSES 15
+
 typedef enum {READY, BLOCKED, TERMINATED} pState;
 
 int sysWrite(uint64_t fd,const char *c, uint64_t length);
@@ -37,14 +39,30 @@ int sysPipeWrite( int pipeId, char * src);
 void sysYield();
 int sysGetProcessList(processStruct * processStruct);
 
+
+
+//estructuras para intercambio de informacion
+
 typedef struct info {
     uint64_t availableBytes;
     uint64_t allocatedBytes;
     uint64_t totalMemory;
 } memInfo;
 
-int sysMemInfo(memInfo * mem);
 
+typedef struct semaphore {
+    uint32_t id;
+    uint64_t value;
+    int blockedProcesses[MAX_BLOCKED_PROCESSES];
+    uint16_t blockedProcessesAmount;
+    uint16_t listeningProcesses;
+} semaphoreData;
+
+
+
+
+int sysMemInfo(memInfo * mem);
+int sysSemaphoreInfo(semaphoreData * s);
 
 
 #endif //SAMPLECODEMODULE_SYSCALLS_H
