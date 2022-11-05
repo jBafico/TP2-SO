@@ -12,14 +12,14 @@
 #define SMALLBUFFER 64
 
 #include <stdint.h>
-typedef struct processStruct{
+typedef struct processInfo{
     uint64_t pid;
     char name[EXCHANGEBUFFERSIZE];
     uint64_t stackPointer;
     uint64_t basePointer;
     char type[SMALLBUFFER];
     char state[SMALLBUFFER];
-} processStruct;
+} processInfo;
 
 void ps(int argc, char ** argv);
 void unblock(int arg, char ** argv);
@@ -29,5 +29,8 @@ void kill(int arg, char ** argv);
 void loop(int argc, char ** argv);
 void mem(int argc, char ** argv);
 void semInfo(int arg, char ** argv);
+void cat(int arg, char ** argv);
+void wc(int arg, char ** argv);
+void filter(int arg, char ** argv);
 
 #endif //SAMPLECODEMODULE_COMMANDS_H

@@ -10,14 +10,13 @@
 #define SECS_LOOP 2
 
 void ps(int argc, char ** argv){
-    processStruct processes[MAXPROCESSES];
+    processInfo processes[MAXPROCESSES];
     int processesRecieved = sysGetProcessList(processes);
 
     printk("Process information\n");
     for ( int i = 0; i < processesRecieved ; i++) {
-        processStruct current = processes[i];
-        printk("PID: %d | Name: %s | SP: %x | BP: %x | Type: %s | State: %s\n", current.pid, current.name, current.stackPointer, current.basePointer, current.type,
-               current.state);
+        processInfo current = processes[i];
+        printk("PID: %d | Name: %s | SP: %x | BP: %x | Type: %s | State: %s\n", current.pid, current.name, current.stackPointer, current.basePointer, current.type, current.state);
     }
 }
 
@@ -62,7 +61,7 @@ void semInfo(int arg, char ** argv){
     int activeSems = sysSemaphoreInfo(semaphores);
     for ( int i = 0; i < activeSems ; i++){
         semaphoreData current = semaphores[i];
-        printk("sem id: %d | value: %d | blocked processes: %d | listening processes %d\n",
+        printk("Sem ID: %d | Value: %d | Blocked processes: %d | Listening processes %d\n",
         current.id,current.value,(int)current.blockedProcessesAmount,(int)current.listeningProcesses);
         printk("Blocked processes:\n");
         for ( int j = 0; j < current.blockedProcessesAmount ; j++){

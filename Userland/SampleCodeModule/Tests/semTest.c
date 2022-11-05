@@ -9,9 +9,9 @@
 
 
 
-int64_t global;  //shared memory
+uint64_t global;  //shared memory
 
-void slowInc(int64_t *p, int64_t inc){
+void slowInc(uint64_t *p, uint64_t inc){
   uint64_t aux = *p;
   sysYield(); //This makes the race condition highly probable
   aux += inc;
@@ -20,31 +20,31 @@ void slowInc(int64_t *p, int64_t inc){
 
 void my_process_inc(int argc, char *argv[]){
   uint64_t n;
-  int8_t inc;
-  int8_t use_sem;
+  uint8_t inc;
+  uint8_t use_sem;
 
   if (argc != 3) return -1;
 
-  if ((n = satoi(argv[0])) <= 0) return -1;
-  if ((inc = satoi(argv[1])) == 0) return -1;
-  if ((use_sem = satoi(argv[2])) < 0) return -1;
+  if ((n = satoi(argv[0])) <= 0) return ;
+  if ((inc = satoi(argv[1])) == 0) return ;
+  if ((use_sem = satoi(argv[2])) < 0) return ;
 
   if (use_sem)
     if (!sysSemOpen(SEM_ID, 1)){
       printk("test_sync: ERROR opening semaphore\n");
-      return -1;
+      return;
     }
 
   uint64_t i;
   for (i = 0; i < n; i++){
     if (use_sem) sysSemWait(SEM_ID);
+      printk( inc > 0 ? "i":"d");
     slowInc(&global, inc);
     if (use_sem) sysSemPost(SEM_ID);
   }
 
   if (use_sem) sysSemClose(SEM_ID);
   
-  return 0;
 }
 
 void semSyncTest(uint64_t argc, char *argv[]){ //{n, use_sem, 0}
@@ -53,8 +53,8 @@ void semSyncTest(uint64_t argc, char *argv[]){ //{n, use_sem, 0}
   int mtx = sysSemOpen(SEM_ID,0);
 
   printk("hello world");
-  char * argvDec[] = {argv[0], "-1", "10000", NULL};
-  char * argvInc[] = {argv[0], "1", "10000", NULL};
+  char * argvDec[] = {"10000", "-1", "55", NULL};
+  char * argvInc[] = {"10000", "1","55", NULL};
 
   global = 0;
   uint64_t i;

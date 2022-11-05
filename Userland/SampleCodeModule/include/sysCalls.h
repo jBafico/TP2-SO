@@ -37,7 +37,7 @@ int sysPipeClose(int pipeId);
 int sysPipeRead(int pipeId);
 int sysPipeWrite( int pipeId, char * src);
 void sysYield();
-int sysGetProcessList(processStruct * processStruct);
+int sysGetProcessList(processInfo * processStruct);
 
 //estructuras para intercambio de informacion
 

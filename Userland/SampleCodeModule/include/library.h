@@ -3,14 +3,13 @@
 
 #include <stdarg.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 
 #define ERROR (-1)
 #define ADD_PROC_ERROR (-2)
 
 #define EOF 96
-
-#define NULL (void *) 0
 
 #define REGULAR 0
 #define ESCAPE 1

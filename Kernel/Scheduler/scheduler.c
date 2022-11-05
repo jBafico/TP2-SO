@@ -3,82 +3,95 @@
 #include <interrupts.h>
 #include <lib.h>
 
+typedef struct {
+    uint64_t gs;
+    uint64_t fs;
+    uint64_t r15;
+    uint64_t r14;
+    uint64_t r13;
+    uint64_t r12;
+    uint64_t r11;
+    uint64_t r10;
+    uint64_t r9;
+    uint64_t r8;
+    uint64_t rsi;
+    uint64_t rdi;
+    uint64_t basePointer;
+    uint64_t rdx;
+    uint64_t rcx;
+    uint64_t rbx;
+    uint64_t rax;
+
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t eflags;
+    uint64_t stackPointer;
+    uint64_t ss;
+    uint64_t base;
+} t_stackFrame;
+
+static void init(int argc, char **argv);
+static int initializeProcessControlBlock(process *proc, char *name, uint8_t foreground, const int *fd);
+static int getArguments(char **to, char **from, int count);
+static void beginProcessHandler(void (*entryPoint)(int, char **), int argc, char **argv);
+static void initializeProcessStackFrame(void (*entryPoint)(int, char **), int argc, char **argv, void *basePointer);
+static void freeProcess(processNode *p);
+static uint64_t getPID();
+static void kill();
+static processNode *getProcess(uint64_t pid);
+
 static uint64_t currentPID = 0;
 static uint64_t cyclesLeft;
 
 static processList *processes;
 static processNode *currentProcess = NULL;
-static processNode *baseProcess;        //This is the process that will be running when there are no task to be executed
+static processNode *baseProcess;
 
-static int queueIsEmpty(processList *processes);
-static processNode *dequeueProcess(processList *processes);
-static void queueProcess(processList *processes, processNode *process);
-static int initializeProcessControlBlock(process *process, char *name, uint8_t foreground, int *fd);
-static uint64_t getPID();
-static int getArguments(char **to, char **from, int count);
-
-static void freeProcess(processNode *p);
-static processNode *getProcess(uint64_t pid);
-
-//TODO MOVER A ALGUN OTRO LUGAR
-int strlen(char * s){
+int strlen(const char * s){
     int i;
     for (i = 0 ; s[i] != 0 ; i++)
         ;
     return i;
 }
 
-char * strcpy(char * dest, char * src){
+char * strcpy(char * dest, const char * src){
     for (int i = 0; src[i] != 0 ; i++){
         dest[i] = src[i];
     }
     return dest;
 }
 
-void init(int argc, char ** argv){
-    while(1){
-        _hlt();
+int queueIsEmpty(processList *prs) { return prs->size == 0; }
+
+void queueProcess(processList *prs, processNode *process) {
+    if (queueIsEmpty(prs)) {
+        prs->first = process;
+        prs->last = prs->first;
+    } else {
+        prs->last->next = process;
+        process->next = NULL;
+        prs->last = process;
     }
+
+    if (process->proc.state == READY) {
+        prs->readySize++;
+    }
+
+    prs->size++;
 }
 
-void kill(){
-    killProcess(currentProcess->process.pid);
-    forceTimerTick();
-}
+processNode *dequeueProcess(processList *prs) {
+    if (queueIsEmpty(prs))
+        return NULL;
 
-void beginProcessHandler( void (*entryPoint)(int,char**),int argc, char ** argv){
-    entryPoint(argc,argv);
-    //tras terminar la ejecucion, eliminamos al proceso
-    kill();
-}
+    processNode *first = prs->first;
+    prs->first = prs->first->next;
+    prs->size--;
 
+    if (first->proc.state == READY)
+        prs->readySize--;
 
-void initalizeDecieveStack(void (*entryPoint)(int, char **),int argc, char ** argv, void * rbp){
-    decieveStack *fakeStack = (decieveStack *)rbp - 1;
-
-    fakeStack->gs = 1;
-    fakeStack->fs = 1;
-    fakeStack->r15 = 1;
-    fakeStack->r14 = 1;
-    fakeStack->r13 = 1;
-    fakeStack->r12 = 1;
-    fakeStack->r11 = 1;
-    fakeStack->r10 = 1;
-    fakeStack->r9 = 1;
-    fakeStack->r8 = 1;
-    fakeStack->rsi = (uint64_t)argc;
-    fakeStack->rdi = (uint64_t)entryPoint;
-    fakeStack->rbp = 1;
-    fakeStack->rdx = (uint64_t)argv;
-    fakeStack->rcx = 1;
-    fakeStack->rbx = 1;
-    fakeStack->rax = 1;
-    fakeStack->rip = (uint64_t)beginProcessHandler;
-    fakeStack->cs = 0x008;//code selector
-    fakeStack->flags = 0x202;
-    fakeStack->rsp = (uint64_t)(&fakeStack->base);
-    fakeStack->ss = 0x000;//stack selector
-    fakeStack->base = 0x000;
+    return first;
 }
 
 void initializeScheduler() {
@@ -92,163 +105,242 @@ void initializeScheduler() {
     processes->readySize = 0;
     processes->size = 0;
 
-    char *argv[] = {"Init"};
-    addProcess( &init, 1, argv, BACKGROUND, 0); //TODO setear el base process
+    char *argv[] = {"Init Base Process"};
+
+    addProcess(&init, 1, argv, false, NULL);
+
     baseProcess = dequeueProcess(processes);
 }
 
-void * schedule(void * rsp){
+void * schedule(void *stackPointer) {
     if (currentProcess != NULL) {
-        if (currentProcess->process.state == READY && cyclesLeft > 0) {
+        if (currentProcess->proc.state == READY && cyclesLeft > 0) {
             cyclesLeft--;
-            return rsp;
+            return stackPointer;
         }
-        currentProcess->process.processSP = rsp;
-        if (currentProcess->process.pid != baseProcess->process.pid) {
-            if (currentProcess->process.state == TERMINATED) {
-                processNode * parent = getProcess(currentProcess->process.ppid);
-                if (parent != NULL && currentProcess->process.foreground &&
-                    parent->process.state == BLOCKED) {
-                    readyProcess(parent->process.pid);
+
+        currentProcess->proc.stackPointer = stackPointer;
+
+        if (currentProcess->proc.pid != baseProcess->proc.pid) {
+            if (currentProcess->proc.state == TERMINATED) {
+                processNode *parent = getProcess(currentProcess->proc.ppid);
+                if (parent != NULL && currentProcess->proc.foreground &&
+                    parent->proc.state == BLOCKED) {
+                    readyProcess(parent->proc.pid);
                 }
                 freeProcess(currentProcess);
-            } else {
-                queueProcess(processes, currentProcess);
             }
+            else
+                queueProcess(processes, currentProcess);
         }
     }
 
     if (processes->readySize > 0) {
         currentProcess = dequeueProcess(processes);
-        while (currentProcess->process.state != READY) {
-            if (currentProcess->process.state == TERMINATED) {
+        while (currentProcess->proc.state != READY) {
+            if (currentProcess->proc.state == TERMINATED)
                 freeProcess(currentProcess);
-            }
-            if (currentProcess->process.state == BLOCKED) {
+
+            if (currentProcess->proc.state == BLOCKED)
                 queueProcess(processes, currentProcess);
-            }
+
             currentProcess = dequeueProcess(processes);
         }
     }
-    else {
+    else
         currentProcess = baseProcess;
-    }
 
-    cyclesLeft = currentProcess->process.prio;
+    cyclesLeft = currentProcess->proc.priority;
 
-    return currentProcess->process.processSP;
+    return currentProcess->proc.stackPointer;
 }
 
-int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int foreground, int *fd){
-    if (entryPoint == NULL)
-        return ERROR;
+int addProcess(void (*entryPoint)(int, char **), int argc, char **argv,
+               int foreground, int *fd) {
+    if (entryPoint == NULL) {
+        return -1;
+    }
 
     processNode *newProcess = malloc(sizeof(processNode));
+    if (newProcess == NULL) {
+        return -1;
+    }
 
-    if (newProcess == NULL)
-        return ERROR;
-
-    if (initializeProcessControlBlock(&newProcess->process, argv[0], foreground,fd) == -1) {
+    if (initializeProcessControlBlock(&newProcess->proc, argv[0], foreground,
+                                      fd) == -1) {
         free(newProcess);
-        return ERROR;
+        return -1;
     }
 
     char **arguments = malloc(sizeof(char *) * argc);
     if (arguments == NULL) {
         free(newProcess);
-        return ERROR;
+        return -1;
     }
 
     if (getArguments(arguments, argv, argc) == -1) {
         free(newProcess);
         free(arguments);
-        return ERROR;
+        return -1;
     }
 
-    newProcess->process.argc = argc;
-    newProcess->process.argv = arguments;
+    newProcess->proc.argc = argc;
+    newProcess->proc.argv = arguments;
 
-    //TODO initialice stack frame for the new process
-    initalizeDecieveStack(entryPoint,argc,argv,newProcess->process.processBP);
-    newProcess->process.state = READY;
+    initializeProcessStackFrame(entryPoint, argc, arguments, newProcess->proc.basePointer);
+
+    newProcess->proc.state = READY;
 
     queueProcess(processes, newProcess);
-    if (newProcess->process.foreground && newProcess->process.ppid) {
-        blockProcess(newProcess->process.ppid);
+    if (newProcess->proc.foreground && newProcess->proc.ppid) {
+        blockProcess(newProcess->proc.ppid);
     }
-    return newProcess->process.pid;
-}
 
-int readyProcess(uint64_t pid) {
-    return setState(pid, READY);
-}
-
-int blockProcess(uint64_t pid) {
-    int resPID = setState(pid, BLOCKED);
-
-    if (pid == currentProcess->process.pid)
-        forceTimerTick();
-
-    return resPID;
+    return newProcess->proc.pid;
 }
 
 int killProcess(uint64_t pid) {
     int resPID = setState(pid, TERMINATED);
 
-    if (pid == currentProcess->process.pid)
+    if (pid == currentProcess->proc.pid) {
         forceTimerTick();
+    }
 
     return resPID;
 }
 
+int blockProcess(uint64_t pid) {
+    int resPID = setState(pid, BLOCKED);
+
+    if (pid == currentProcess->proc.pid) {
+        forceTimerTick();
+    }
+
+    return resPID;
+}
+
+int readyProcess(uint64_t pid) { return setState(pid, READY); }
+
+int getProcessPID() { return currentProcess ? currentProcess->proc.pid : -1; }
+
+
+void yield() {
+    cyclesLeft = 0;
+    forceTimerTick();
+}
+
+int setState(uint64_t pid, pState newState) {
+    processNode *process = getProcess(pid);
+    if (process == NULL || process->proc.state == TERMINATED) {
+        return -1;
+    }
+
+    if (process == currentProcess) {
+        process->proc.state = newState;
+        return process->proc.pid;
+    }
+
+    if (process->proc.state != READY && newState == READY) {
+        processes->readySize++;
+    }
+
+    if (process->proc.state == READY && newState != READY) {
+        processes->readySize--;
+    }
+
+    process->proc.state = newState;
+
+    return process->proc.pid;
+}
+
+void setPriority(uint64_t pid, int newPriority) {
+    if (newPriority < 0) {
+        newPriority = 0;
+    }
+    if (newPriority > MAX_PRIORITY) {
+        newPriority = MAX_PRIORITY;
+    }
+
+    processNode *p = getProcess(pid);
+
+    if (p != NULL) {
+        p->proc.priority = newPriority;
+    }
+}
+
 void killCurrentFGProcess() {
-    if (currentProcess != NULL && currentProcess->process.foreground &&
-        currentProcess->process.state == READY) {
-        killProcess(currentProcess->process.pid);
+    if (currentProcess != NULL && currentProcess->proc.foreground &&
+        currentProcess->proc.state == READY) {
+        killProcess(currentProcess->proc.pid);
+    }
+}
+
+int currentProcessIsForeground() {
+    if (currentProcess) {
+        return currentProcess->proc.foreground;
+    } else {
+        return -1;
+    }
+}
+
+int getCurrentProcessInputFD() {
+    if (currentProcess) {
+        return currentProcess->proc.fds[0];
+    } else {
+        return -1;
+    }
+}
+
+int getCurrentProcessOutputFD() {
+    if (currentProcess) {
+        return currentProcess->proc.fds[1];
+    } else {
+        return -1;
     }
 }
 
 void wait(int pid) {
     processNode *process = getProcess(pid);
     if (process) {
-        process->process.foreground = 1;
-        blockProcess(currentProcess->process.pid);
+        process->proc.foreground = 1;
+        blockProcess(currentProcess->proc.pid);
     }
 }
 
-void yield(){
-    cyclesLeft=0;
-    forceTimerTick();
+static void init(int argc, char **argv) {
+    while (1) {
+        _hlt();
+    }
 }
 
-// INITIALIZERS
-static int initializeProcessControlBlock(process *process, char *name,uint8_t foreground, int *fd) {
-    strcpy(process->name, name);//TODO have to cpy name
-    process->pid = getPID();
-    process->ppid = (currentProcess == NULL ? 0 : currentProcess->process.pid);
+static uint64_t getPID() { return currentPID++; }
+
+static int initializeProcessControlBlock(process *proc, char *name, uint8_t foreground, const int *fd) {
+    strcpy(proc->name, name);
+    proc->pid = getPID();
+    proc->ppid = (currentProcess == NULL ? 0 : currentProcess->proc.pid);
     if (foreground > 1) {
         return -1;
     }
 
-    process->foreground = (currentProcess == NULL
+    proc->foreground = (currentProcess == NULL
                        ? foreground
-                       : (currentProcess->process.foreground ? foreground : 0));
-    process->processBP = malloc(SIZE_OF_STACK);
-    process->prio = process->foreground ? FOREGROUND_PRIORITY_DEFAULT
+                       : (currentProcess->proc.foreground ? foreground : 0));
+    proc->basePointer = malloc(SIZE_OF_STACK);
+    proc->priority = proc->foreground ? FOREGROUND_PRIORITY_DEFAULT
                                     : BACKGROUND_PRIORITY_DEFAULT;
-    process->FD[0] = (fd ? fd[0] : 0);
-    process->FD[1] = (fd ? fd[1] : 1);
+    proc->fds[0] = (fd ? fd[0] : 0);
+    proc->fds[1] = (fd ? fd[1] : 1);
 
-    if (process->processBP == NULL) {
+    if (proc->basePointer == NULL) {
         return -1;
     }
-    //TODO CHEQUEAR ALINEAMIENTO
-    process->processBP = (void *)((char *)process->processBP + SIZE_OF_STACK - 1);
-    process->processSP = (void *)((decieveStack *)process->processBP - 1);//TODO GET THE STACK POINTER
+
+    proc->basePointer = (void *)((char *)proc->basePointer + SIZE_OF_STACK - 1);
+    proc->stackPointer = (void *)((t_stackFrame *)proc->basePointer - 1);
     return 0;
 }
 
-// GETTERS
 static int getArguments(char **to, char **from, int count) {
     for (int i = 0; i < count; i++) {
         to[i] = malloc(sizeof(char) * (strlen(from[i]) + 1));
@@ -265,83 +357,53 @@ static int getArguments(char **to, char **from, int count) {
     return 0;
 }
 
-static uint64_t getPID() {
-    return currentPID++;
+static void kill() {
+    (void)killProcess(currentProcess->proc.pid);
+    forceTimerTick();
 }
 
-int getProcessPID() {
-    return currentProcess ? currentProcess->process.pid : -1;
+static void beginProcessHandler(void (*entryPoint)(int, char **), int argc, char **argv) {
+    entryPoint(argc, argv);
+    kill();
 }
 
-int getCurrentProcessInputFD() {
-    if (currentProcess)
-        return currentProcess->process.FD[0];
-    else
-        return -1;
+static void initializeProcessStackFrame(void (*entryPoint)(int, char **),
+                                        int argc, char **argv, void *basePointer) {
+    t_stackFrame *stackFrame = (t_stackFrame *)basePointer - 1;
+
+    stackFrame->gs = 0x001;
+    stackFrame->fs = 0x002;
+    stackFrame->r15 = 0x003;
+    stackFrame->r14 = 0x004;
+    stackFrame->r13 = 0x005;
+    stackFrame->r12 = 0x006;
+    stackFrame->r11 = 0x007;
+    stackFrame->r10 = 0x008;
+    stackFrame->r9 = 0x009;
+    stackFrame->r8 = 0x00A;
+    stackFrame->rsi = (uint64_t)argc;
+    stackFrame->rdi = (uint64_t)entryPoint;
+    stackFrame->basePointer = 0x00B;
+    stackFrame->rdx = (uint64_t)argv;
+    stackFrame->rcx = 0x00C;
+    stackFrame->rbx = 0x00D;
+    stackFrame->rax = 0x00E;
+    stackFrame->rip = (uint64_t)beginProcessHandler;
+    stackFrame->cs = 0x008;
+    stackFrame->eflags = 0x202;
+    stackFrame->stackPointer = (uint64_t)(&stackFrame->base);
+    stackFrame->ss = 0x000;
+    stackFrame->base = 0x000;
 }
 
-int getCurrentProcessOutputFD() {
-    if (currentProcess)
-        return currentProcess->process.FD[1];
-    else
-        return -1;
-}
-
-int currentProcessIsForeground() {
-    if (currentProcess)
-        return currentProcess->process.foreground;
-    else
-        return -1;
-}
-// SETTERS
-int setState(uint64_t pid, pState newState) {
-    processNode *process = getProcess(pid);
-    if (process == NULL || process->process.state == TERMINATED) {
-        return -1;
-    }
-
-    if (process == currentProcess) {
-        process->process.state = newState;
-        return process->process.pid;
-    }
-
-    if (process->process.state != READY && newState == READY) {
-        processes->readySize++;
-    }
-
-    if (process->process.state == READY && newState != READY) {
-        processes->readySize--;
-    }
-
-    process->process.state = newState;
-
-    return process->process.pid;
-}
-
-void setPriority(uint64_t pid, int newPriority) {
-    if (newPriority < 0) {
-        newPriority = 0;
-    }
-    if (newPriority > MAX_PRIORITY) {
-        newPriority = MAX_PRIORITY;
-    }
-
-    processNode *p = getProcess(pid);
-
-    if (p != NULL) {
-        p->process.prio = newPriority;
-    }
-}
-
-// FIND FUNCITONS
 static processNode *getProcess(uint64_t pid) {
-    if (currentProcess != NULL && currentProcess->process.pid == pid) {
+    if (currentProcess != NULL && currentProcess->proc.pid == pid) {
         return currentProcess;
     }
 
     processNode *process = processes->first;
     while (process != NULL) {
-        if (process->process.pid == pid) {
+        if (process->proc.pid == pid) {
             return process;
         }
         process = (processNode *)process->next;
@@ -349,77 +411,34 @@ static processNode *getProcess(uint64_t pid) {
     return NULL;
 }
 
-// MEM FUNCITONS
-static void freeProcess(processNode *process) {
-    if(process != NULL){
-        for (int i = 0; i < process->process.argc; i++) {
-            free(process->process.argv[i]);
-        }
-        free((void *)((char *)process->process.processBP - SIZE_OF_STACK + 1));
-        free(process->process.argv);
-        free((void *)process);
+static void freeProcess(processNode *p) {
+    for (int i = 0; i < p->proc.argc; i++) {
+        free(p->proc.argv[i]);
     }
+    free(p->proc.argv);
+    free((void *)((char *)p->proc.basePointer - SIZE_OF_STACK + 1));
+    free((void *)p);
 }
 
-// QUEUE FUNCITONS
-void queueProcess(processList *processes, processNode *process) {
-    if (queueIsEmpty(processes)) {
-        processes->first = process;
-        processes->last = processes->first;
-    } else {
-        processes->last->next = process;
-        process->next = NULL;
-        processes->last = process;
-    }
-
-    if (process->process.state == READY) {
-        processes->readySize++;
-    }
-
-    processes->size++;
-}
-
-processNode *dequeueProcess(processList *processes) {
-    if (queueIsEmpty(processes)) {
-        return NULL;
-    }
-
-    processNode *first = processes->first;
-    processes->first = processes->first->next;
-    processes->size--;
-
-    if (first->process.state == READY) {
-        processes->readySize--;
-    }
-
-    return first;
-}
-
-int queueIsEmpty(processList *processes) {
-    return processes->size == 0;
-}
-
-
-int getProcessList(processStruct * ps){
-    processNode* current = processes->first;
+int getProcessList(processInfo * ps) {
+    processNode *current = processes->first;
     int i;
-    for ( i = 0; i < processes->size; i++, current = current->next){
-        strcpy(ps[i].name,current->process.name);
-        strcpy(ps[i].type,current->process.foreground ? "Foreground":"Background");
-        strcpy(ps[i].state,current->process.state == READY ? "Ready": current->process.state == BLOCKED ? "Blocked":"Terminated");
-        ps[i].pid = current->process.pid;
-        ps[i].basePointer = current->process.processBP;
-        ps[i].stackPointer = current->process.processSP;
+    for (i = 0; i < processes->size; i++, current = current->next) {
+        strcpy(ps[i].name, current->proc.name);
+        strcpy(ps[i].type, current->proc.foreground ? "Foreground" : "Background");
+        strcpy(ps[i].state, current->proc.state == READY ? "Ready" : current->proc.state == BLOCKED ? "Blocked"
+                                                                                                          : "Terminated");
+        ps[i].pid = current->proc.pid;
+        ps[i].basePointer = (uint64_t) current->proc.basePointer;
+        ps[i].stackPointer = (uint64_t) current->proc.stackPointer;
     }
     //agregamos el current process
-    strcpy(ps[i].name,currentProcess->process.name);
-    strcpy(ps[i].type, currentProcess->process.foreground ? "Foreground":"Background");
-    strcpy(ps[i].state,"Running");
-    ps[i].pid = currentProcess->process.pid;
-    ps[i].basePointer = currentProcess->process.processBP;
-    ps[i].stackPointer = currentProcess->process.processSP;
+    strcpy(ps[i].name, currentProcess->proc.name);
+    strcpy(ps[i].type, currentProcess->proc.foreground ? "Foreground" : "Background");
+    strcpy(ps[i].state, "Running");
+    ps[i].pid = currentProcess->proc.pid;
+    ps[i].basePointer = currentProcess->proc.basePointer;
+    ps[i].stackPointer = currentProcess->proc.stackPointer;
     i++;
     return i;
 }
-
-

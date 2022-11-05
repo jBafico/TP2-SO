@@ -130,14 +130,10 @@ void free(void *block) {
     freePtr = currentNode;
 }
 
-
-
-void * memoryInformation(memInfo * m){
+void memoryInformation(memInfo * m){
     m->allocatedBytes = currentMemInfo.allocatedBytes;
     m->availableBytes = currentMemInfo.availableBytes;
     m->totalMemory = currentMemInfo.totalMemory;
-
 }
-
 
 #endif

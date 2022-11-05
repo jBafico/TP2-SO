@@ -37,10 +37,10 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
 //
 #define CANT_PIPE_COMMS 5
 command pipeComms[CANT_PIPE_COMMS] = {
-//                                        {"cat", &cat},
-//                                      {"wc", &wc},
+                                        {"cat", &cat},
+                                      {"wc", &wc},
                                       {"loop", &loop},
-//                                      {"filter", &filter},
+                                      {"filter", &filter},
                                {"phylo", &phyloProblem}
 };
 
@@ -111,7 +111,7 @@ static void errArguments(char * str, char * errMsg){
     printkfd(STDERR, errMsg);
 }
 
-int addNoPipeFunc(char ** argv, int argc, bool backgroundFlag){
+static int addNoPipeFunc(char ** argv, int argc, bool backgroundFlag){
     for(int i = 0 ; i < CANT_NO_PIPE_COMMS; ++i){
         if(strcmp(argv[0],noPipeComms[i].name) == 0){
             if(sysAddProcess(noPipeComms[i].function, argc, argv, !backgroundFlag, NULL) == ERROR)
@@ -129,7 +129,7 @@ int addNoPipeFunc(char ** argv, int argc, bool backgroundFlag){
     return ERROR;
 }
 
-void getPipeFunc(char * n1, char * n2, command * f1, command * f2){
+static void getPipeFunc(char * n1, char * n2, command * f1, command * f2){
     for (int i = 0; i < CANT_PIPE_COMMS; i++) {
         if(strcmp(n1, pipeComms[i].name) == 0)
             *f1 = pipeComms[i];
@@ -139,7 +139,7 @@ void getPipeFunc(char * n1, char * n2, command * f1, command * f2){
 }
 
 //Pipe processes will always run in foreground
-int addPipeFunc(char ** argv){
+static int addPipeFunc(char ** argv){
     char * argv1[1] = {argv[0]};
     char * argv2[1] = {argv[2]};
 
@@ -160,13 +160,18 @@ int addPipeFunc(char ** argv){
     if(pipe == ERROR)
         return PIPE_ERROR;
 
-    int fd1[2] = {pipe, 1};
-    int fd2[2] = {0, pipe};
+    int fd1[2];
+    fd1[0] = pipe;
+    fd1[1] = 1;
 
     if(sysAddProcess(f1.function, 1, argv1, true, fd1) == ERROR){
         sysPipeClose(pipe);
         return ADD_PROC_ERROR;
     }
+
+    int fd2[2];
+    fd2[0]= 0;
+    fd2[1] = pipe;
 
     if(sysAddProcess(f2.function, 1, argv2, true, fd2) == ERROR){
         sysPipeClose(pipe);
@@ -182,7 +187,7 @@ int addPipeFunc(char ** argv){
     return 0;
 }
 
-void handlePipe(char ** argv, int argc){
+static void handlePipe(char ** argv, int argc){
     if(argc != 3) {
         printErr(errMessages[3]);
     }
@@ -208,7 +213,7 @@ void handlePipe(char ** argv, int argc){
     }
 }
 
-void prepareArgv(char * dest[], char src[][MAX_LEN_COMMAND], int argc){
+static void prepareArgv(char * dest[], char src[][MAX_LEN_COMMAND], int argc){
     for (int i = 0; i < argc; ++i) {
         dest[i] = src[i];
     }

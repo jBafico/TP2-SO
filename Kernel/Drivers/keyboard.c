@@ -3,12 +3,14 @@
 #include <keyboard.h>
 #include <int80Dispatcher.h>
 #include <scheduler.h>
+#include <stdbool.h>
 
 #define MAX_BUFF 512
 
 #define STDIN 0
+#define EOF 96
 
-//Tabla para convertir lo que recibe getKey en letra
+//Tabla para convertir lo que recibe  y en letra
 static char kbd_US [CANT_KEYS] =
         {
                 0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
@@ -99,32 +101,31 @@ void ncPrintKeyShift(uint16_t code){
     }
 }
 
-//static uint8_t ctrlFlag=FALSE;
-static uint8_t shiftFlag = 0;
+static uint8_t shiftFlag = false;
+static uint8_t ctrlFlag = false;
 
 void keyboard_handler(){
     uint16_t teclahex = getKey();
     if(teclahex == RSHIFT || teclahex == LSHIFT)
-        shiftFlag = 1;
+        shiftFlag = true;
     else if(teclahex == (RSHIFT + RELEASE) || teclahex == (LSHIFT + RELEASE)) //Ambos release shifts del teclado
-        shiftFlag = 0;
-//    else if(teclahex == CONTROL)
-//        ctrlFlag=TRUE;
-//    else if(teclahex == (CONTROL+RELEASE))
-//        ctrlFlag=FALSE;
-//    else if(teclahex == ESCAPE)
-//        setStopFlag(STOP_ALL);
+        shiftFlag = false;
+    else if(teclahex == CONTROL)
+        ctrlFlag = true;
+    else if(teclahex == (CONTROL + RELEASE))
+        ctrlFlag = false;
+    else if(teclahex == ESCAPE)
+        killCurrentFGProcess();
     else if (teclahex < RELEASE) {
         if(kbd_US[teclahex] != 0) {
-            if (shiftFlag == 0)
-                keyboardBuffer[writer++] = kbd_US[teclahex];
-            else
-                keyboardBuffer[writer++] = shift_kbd_US[teclahex];
-
-//            if(teclahex == ONE)
-//                setStopFlag(STOP_FIRST);
-//            else if(teclahex == TWO)
-//                setStopFlag(STOP_SECOND);
+            if(!ctrlFlag) {
+                if (shiftFlag == 0)
+                    keyboardBuffer[writer++] = kbd_US[teclahex];
+                else
+                    keyboardBuffer[writer++] = shift_kbd_US[teclahex];
+            }
+            else if(kbd_US[teclahex] == 'd')
+                keyboardBuffer[writer++] = EOF;
         }
     }
     writer %= MAX_BUFF;
@@ -140,10 +141,6 @@ void cleanKeyboardBuffer(){
     char c;
     while (sys_read(STDIN, &c, 1)!=-1);
 }
-
-//int getCtrlFlag(){
-//    return ctrlFlag;
-//}
 
 
 

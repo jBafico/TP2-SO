@@ -8,7 +8,6 @@
 #include <semaphores.h>
 #include <pipe.h>
 #include <interrupts.h>
-#include <scheduler.h>
 
 #define CANTBYTES 32
 #define MAX_BUFF 512
@@ -155,7 +154,6 @@ int sys_mem(uint8_t * mem, uint64_t address){
 
 uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
     _sti();
-    int FD[]={STDIN, STDOUT};
     switch (code) {
         case SYS_READ: //arg0: fd , arg1: buff, arg2: length
             return sys_read( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
@@ -178,7 +176,7 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
             free((void*) arg0);
             break;
         case SYS_ADD_PROCESS:
-            return addProcess((void(*)(int, char**))arg0, (int) arg1, (char**) arg2, (int) arg3, (((int *) arg4) == NULL ? FD : (int *) arg4));
+            return addProcess((void(*)(int, char**))arg0, (int) arg1, (char**) arg2, (int) arg3, (int *) arg4);
         case SYS_WAIT:
             wait((int) arg0);
             break;
@@ -215,7 +213,7 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
         case SYS_PIPE_WRITE:
             return pipeWrite((int) arg0, (char *) arg1);
         case SYS_GETPROCESSLIST:
-            return getProcessList((processStruct *) arg0);
+            return getProcessList((processInfo *) arg0);
         case SYS_SEMAPHORE_INFO:
             return semaphoreInfo( (semaphoreData *) arg0);
         case SYS_YIELD:
