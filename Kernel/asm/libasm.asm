@@ -8,7 +8,9 @@ GLOBAL getDayOfMonth
 GLOBAL getMonth
 GLOBAL getYear
 
-GLOBAL callTimerTick
+GLOBAL forceTimerTick
+GLOBAL _xchg
+
 GLOBAL prepareRegisters
 GLOBAL getByte
 
@@ -134,9 +136,14 @@ restartSCM:
 	mov rsp, rax				; Set up the stack with the returned address
 	call runSampleCodeModule
 
-callTimerTick:
+forceTimerTick:
     int 20h
     ret
+
+_xchg:
+	mov rax, rsi
+	xchg [rdi], eax		; put eax in [rdi] and [rdi] in eax
+	ret
 
 section .bss
     GPRv resq 17

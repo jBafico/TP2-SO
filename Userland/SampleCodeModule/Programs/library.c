@@ -37,9 +37,6 @@ void swap(char *x, char *y) {
     *y = t;
 }
 
-
-
-
 // A simple atoi() function
 int myAtoi(char* str)
 {

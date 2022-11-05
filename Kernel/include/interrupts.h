@@ -9,7 +9,6 @@
 #define INTERRUPS_H_
 
 #include <idtLoader.h>
-void _force_timer_tick(void);
 void _timer_tick_handler(void);
 void _irq00Handler(void);
 void _irq01Handler(void);

@@ -15,7 +15,7 @@ static void blockedProcessesDump(int *blockedProcesses, uint16_t blockedProcesse
 int semOpen(uint32_t id, uint64_t initialValue) {
     semaphore *sem= getSemaphore(id);
 
-    if (sem== NULL) {
+    if (sem == NULL) {
         sem = createSemaphore(id, initialValue);
         if (sem == NULL)
             return ERROR;
@@ -48,7 +48,6 @@ int semWait(uint32_t id) {
     return 0;
 }
 
-//TODO check errors
 int semPost(uint32_t id) {
     semaphore *sem;
     if ((sem = getSemaphore(id)) == NULL)
@@ -143,12 +142,12 @@ static semaphore *createSemaphore(uint32_t id, uint64_t initialValue) {
 
 static void addSemaphoreToList(semaphore *newSem) {
     semaphore *nextSem = semaphores;
-    if (nextSem == NULL) {
+    if (nextSem == NULL)
         semaphores = newSem;
-    } else {
-        while (nextSem->next != NULL) {
+    else {
+        while (nextSem->next != NULL)
             nextSem = nextSem->next;
-        }
+
        nextSem->next = newSem;
     }
 }
@@ -166,9 +165,9 @@ static semaphore *getSemaphore(uint32_t id) {
 
 static void unblockSemProcess(semaphore *sem) {
     int PID = sem->blockedProcesses[0];
-    for (int i = 0; i < sem->blockedProcessesAmount - 1; i++) {
+    for (int i = 0; i < sem->blockedProcessesAmount - 1; i++)
         sem->blockedProcesses[i] = sem->blockedProcesses[i + 1];
-    }
+
     sem->blockedProcessesAmount--;
     readyProcess(PID);
 }
@@ -176,10 +175,13 @@ static void unblockSemProcess(semaphore *sem) {
 int semaphoreInfo(semaphoreData * s){
     int i;
     semaphore* current = semaphores;
-    if ( current == NULL) {
-        ncPrint("im null buddy");
+
+    if (current == NULL) {
+        ncPrint("I'm NULL buddy");
+        ncNewline();
     }
-    for ( i = 0; current != NULL; i++, current = current->next){
+
+    for (i = 0; current != NULL; i++, current = current->next){
         s[i].id = current->id;
         s[i].blockedProcessesAmount = current->blockedProcessesAmount;
         s[i].listeningProcesses = current->listeningProcesses;

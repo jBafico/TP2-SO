@@ -18,7 +18,6 @@ GLOBAL _exception6Handler
 GLOBAL _int80Handler
 
 GLOBAL _timer_tick_handler
-GLOBAL _xchg
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
@@ -285,15 +284,6 @@ _int80Handler:
 	mov rax, [aux]
     iretq
 
-
-_xchg:
-	mov rax, rsi
-	xchg [rdi], eax		; put eax in [rdi] and [rdi] in eax
-	ret
-
-_force_timer_tick
-	int 0x20
-	ret
 _timer_tick_handler:
 	pushAll
 

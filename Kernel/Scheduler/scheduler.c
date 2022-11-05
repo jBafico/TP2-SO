@@ -1,8 +1,6 @@
 #include <scheduler.h>
-#include <keyboard.h>
 #include <memManager.h>
 #include <interrupts.h>
-#include <naiveConsole.h>
 #include <lib.h>
 
 static uint64_t currentPID = 0;
@@ -37,17 +35,15 @@ char * strcpy(char * dest, char * src){
     return dest;
 }
 
-
 void init(int argc, char ** argv){
     while(1){
         _hlt();
     }
 }
 
-
 void kill(){
     killProcess(currentProcess->process.pid);
-    _force_timer_tick();
+    forceTimerTick();
 }
 
 void beginProcessHandler( void (*entryPoint)(int,char**),int argc, char ** argv){
@@ -191,7 +187,7 @@ int blockProcess(uint64_t pid) {
     int resPID = setState(pid, BLOCKED);
 
     if (pid == currentProcess->process.pid)
-        _force_timer_tick();
+        forceTimerTick();
 
     return resPID;
 }
@@ -200,7 +196,7 @@ int killProcess(uint64_t pid) {
     int resPID = setState(pid, TERMINATED);
 
     if (pid == currentProcess->process.pid)
-        _force_timer_tick();
+        forceTimerTick();
 
     return resPID;
 }
@@ -222,7 +218,7 @@ void wait(int pid) {
 
 void yield(){
     cyclesLeft=0;
-    _force_timer_tick();
+    forceTimerTick();
 }
 
 // INITIALIZERS

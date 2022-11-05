@@ -39,8 +39,6 @@ int sysPipeWrite( int pipeId, char * src);
 void sysYield();
 int sysGetProcessList(processStruct * processStruct);
 
-
-
 //estructuras para intercambio de informacion
 
 typedef struct info {
@@ -57,9 +55,6 @@ typedef struct semaphore {
     uint16_t blockedProcessesAmount;
     uint16_t listeningProcesses;
 } semaphoreData;
-
-
-
 
 int sysMemInfo(memInfo * mem);
 int sysSemaphoreInfo(semaphoreData * s);
