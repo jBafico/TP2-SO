@@ -391,7 +391,7 @@ push rbp
         ret
 ; void sysYield();
 sysYield:
-push rbp
+    push rbp
     mov rbp, rsp
     mov rax, SYSYIELD
 

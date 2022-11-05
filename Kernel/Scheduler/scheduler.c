@@ -362,7 +362,6 @@ static void freeProcess(processNode *process) {
         free((void *)((char *)process->process.processBP - SIZE_OF_STACK + 1));
         free(process->process.argv);
         free((void *)process);
-        currentPID--;
     }
 }
 
