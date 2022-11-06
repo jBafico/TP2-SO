@@ -66,7 +66,7 @@
      int64_t pid = sysGetPID();
 
      while(1){
-         //printk("%d ",pid);
+         printk("%d ",pid);
          bussy_wait(WAIT);
      }
  }

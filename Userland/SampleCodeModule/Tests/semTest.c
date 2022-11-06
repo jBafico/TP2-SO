@@ -6,9 +6,6 @@
 #define PAIR_PROCESSES 2
 #define SEM_ID 55
 
-
-
-
 uint64_t global;  //shared memory
 
 void slowInc(uint64_t *p, uint64_t inc){
@@ -52,7 +49,6 @@ void semSyncTest(int argc, char ** argv){ //{n, use_sem, 0}
 
   int mtx = sysSemOpen(SEM_ID,0);
 
-  printk("hello world");
   char * argvDec[] = {"10000", "-1", "55", NULL};
   char * argvInc[] = {"10000", "1","55", NULL};
 

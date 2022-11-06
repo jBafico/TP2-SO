@@ -16,7 +16,6 @@ typedef enum {READY, BLOCKED, TERMINATED} pState;
 #define EXCHANGEBUFFERSIZE 128
 #define SMALLBUFFER 64
 
-
 typedef struct processInfo{
     uint64_t pid;
     char name[EXCHANGEBUFFERSIZE];
@@ -38,6 +37,7 @@ typedef struct process{
     void * basePointer;
     int argc;
     char ** argv;
+    void * returnDir;
 } process;
 
 typedef struct processNode {
@@ -51,6 +51,33 @@ typedef struct processList {
     processNode *first;
     processNode *last;
 } processList;
+
+typedef struct decieveStack {
+    uint64_t gs;
+    uint64_t fs;
+    uint64_t r15;
+    uint64_t r14;
+    uint64_t r13;
+    uint64_t r12;
+    uint64_t r11;
+    uint64_t r10;
+    uint64_t r9;
+    uint64_t r8;
+    uint64_t rsi;
+    uint64_t rdi;
+    uint64_t basePointer;
+    uint64_t rdx;
+    uint64_t rcx;
+    uint64_t rbx;
+    uint64_t rax;
+
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t eflags;
+    uint64_t stackPointer;
+    uint64_t ss;
+    uint64_t base;
+} decieveStack;
 
 void * schedule(void *sp);
 void initializeScheduler();

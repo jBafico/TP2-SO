@@ -256,8 +256,10 @@ void stopForCommand(){
         if(strcmp(strings[1],PIPE) == 0)
             handlePipe(argv, argc);
         else{
-            if(argc > 1 && strcmp(strings[--argc],AMPER) == 0)
+            if(argc > 1 && strcmp(strings[argc-1],AMPER) == 0){
                 backgroundFlag = true;
+                argc--;
+            }
 
             switch (addNoPipeFunc(argv, argc, backgroundFlag)) {
                 case ERROR:
