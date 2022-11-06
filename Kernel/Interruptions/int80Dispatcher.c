@@ -105,7 +105,7 @@ int sys_write(uint8_t fd, char * buff, uint64_t length){
         fd = getCurrentProcessOutputFD();
 
     int i;
-    if(fd == STDOUT){
+    if(fd == STDOUT || fd == STDERR || fd == STDERRDER ||fd == STDERRIZQ ||  fd == STDERRBOTH){
         for (i = 0; i < length && buff[i] != '\0'; ++i) {
             if ( buff[i] == '\n')
                 ncNewLineFd(fd);
@@ -150,10 +150,6 @@ void sys_sleep(uint64_t secs){
 void sys_clearscreen(){
     ncClear();
 }
-
-//int sys_registers(uint64_t regs[]){
-//return getRegisters(regs);
-//}
 
 int sys_mem(uint8_t * mem, uint64_t address){
     if((uint64_t) address > (0x20000000 - 32)) {

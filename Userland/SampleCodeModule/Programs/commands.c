@@ -80,6 +80,7 @@ void cat(int argc, char ** argv){
     while ((c = getChar()) != EOF) {
         putCharacter(STDOUT, c);
     }
+    putCharacter(STDOUT, EOF);
 }
 
 void wc(int argc, char ** argv){

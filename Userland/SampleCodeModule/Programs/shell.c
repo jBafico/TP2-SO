@@ -165,15 +165,15 @@ static int addPipeFunc(char ** argv){
         return ADD_PROC_ERROR;
     }
 
+    char endOfFile = EOF;
+    sysPipeWrite(pipe, &endOfFile);
+
     int fd2[2] = {pipe, STDOUT};
 
     if(sysAddProcess(f2.function, 1, argv2, true, fd2) == ERROR){
         sysPipeClose(pipe);
         return ADD_PROC_ERROR;
     }
-
-    char endOfFile = EOF;
-    sysPipeWrite(pipe, &endOfFile);
 
     sysPipeClose(pipe);
     printk("\n");
