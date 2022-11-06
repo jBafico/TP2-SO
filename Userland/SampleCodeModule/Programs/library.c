@@ -183,7 +183,7 @@ void printErr(const char * fmt, ...){
 
 char getChar(){
     char c = 0;
-    uint16_t ret;
+    int ret;
     do{
         ret = sysRead(STDIN,&c,1);
     } while (ret != 1);

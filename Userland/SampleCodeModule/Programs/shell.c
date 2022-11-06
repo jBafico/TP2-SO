@@ -175,9 +175,8 @@ static int addPipeFunc(char ** argv){
         return ADD_PROC_ERROR;
     }
 
+    sysPipeWrite(pipe, &endOfFile);
     sysPipeClose(pipe);
-    printk("\n");
-
     return 0;
 }
 

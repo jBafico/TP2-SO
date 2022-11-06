@@ -75,11 +75,11 @@ int sys_read(uint8_t fd, char * buff, uint64_t length){
     if(fd != STDERR && fd != STDERRDER && fd != STDERRIZQ && fd != STDERRBOTH)
         fd = getCurrentProcessInputFD();
 
-    if (reader == writer)
-        return -1;
-
     uint8_t addedNewLine = FALSE;
     if(fd == STDIN){
+        if (reader == writer)
+            return ERROR;
+
         for (; i < length && !addedNewLine; i++, reader = ( reader + 1) % MAX_BUFF){
             buff[i] = kbdbuffer[reader];
             if (kbdbuffer[reader] == '\n')
@@ -105,7 +105,7 @@ int sys_write(uint8_t fd, char * buff, uint64_t length){
         fd = getCurrentProcessOutputFD();
 
     int i;
-    if(fd == STDOUT || fd == STDERR || fd == STDERRDER ||fd == STDERRIZQ ||  fd == STDERRBOTH){
+    if(fd >= STDOUT && fd <= STDERRBOTH){
         for (i = 0; i < length && buff[i] != '\0'; ++i) {
             if ( buff[i] == '\n')
                 ncNewLineFd(fd);

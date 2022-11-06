@@ -76,11 +76,11 @@ void semInfo(int argc, char ** argv){
 
 
 void cat(int argc, char ** argv){
-    char c;
+    char c = 0;
     while ((c = getChar()) != EOF) {
         putCharacter(STDOUT, c);
     }
-    putCharacter(STDOUT, EOF);
+    putCharacter(STDOUT, '\n');
 }
 
 void wc(int argc, char ** argv){
@@ -100,6 +100,7 @@ void filter(int argc, char ** argv){
         if (!isVowel(c))
             putCharacter(STDOUT, c);
     }
+    putCharacter(STDOUT, '\n');
 }
 
 void semTest(int argc, char ** argv){
