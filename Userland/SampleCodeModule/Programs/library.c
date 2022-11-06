@@ -102,7 +102,7 @@ char* itoa(int value, char* buffer, int base){
 }
 
 void putCharacter(uint64_t fd, char c){
-    sysWrite(&c,1);
+    sysWrite(fd,&c,1);
 }
 
 int getStringLength(const char *vec) {
@@ -114,7 +114,7 @@ int getStringLength(const char *vec) {
 
 void printString(uint64_t fd, const char * vec){
     int length = getStringLength(vec);
-    sysWrite(vec,length);
+    sysWrite(fd,vec,length);
 }
 
 void vprintk(uint64_t fd, const char * fmt, va_list args){
@@ -185,7 +185,7 @@ char getChar(){
     char c = 0;
     uint16_t ret;
     do{
-        ret = sysRead(&c,1);
+        ret = sysRead(STDIN,&c,1);
     } while (ret != 1);
     return c;
 }

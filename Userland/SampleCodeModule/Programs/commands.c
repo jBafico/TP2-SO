@@ -87,9 +87,8 @@ void wc(int argc, char ** argv){
     int lines = 1;
     while ((c = getChar()) != EOF) {
         putCharacter(STDOUT, c);
-        if (c == '\n') {
+        if (c == '\n')
             lines++;
-        }
     }
     printk("\nCantidad de lineas: %d\n", lines);
 }
@@ -97,9 +96,8 @@ void wc(int argc, char ** argv){
 void filter(int argc, char ** argv){
     char c;
     while ((c = getChar()) != EOF) {
-        if (!isVowel(c)) {
+        if (!isVowel(c))
             putCharacter(STDOUT, c);
-        }
     }
 }
 

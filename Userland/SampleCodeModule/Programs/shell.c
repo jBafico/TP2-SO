@@ -158,26 +158,22 @@ static int addPipeFunc(char ** argv){
     if(pipe == ERROR)
         return PIPE_ERROR;
 
-    int fd1[2];
-    fd1[0] = pipe;
-    fd1[1] = 1;
+    int fd1[2] = {STDIN, pipe};
 
     if(sysAddProcess(f1.function, 1, argv1, true, fd1) == ERROR){
         sysPipeClose(pipe);
         return ADD_PROC_ERROR;
     }
 
-    int fd2[2];
-    fd2[0]= 0;
-    fd2[1] = pipe;
+    int fd2[2] = {pipe, STDOUT};
 
     if(sysAddProcess(f2.function, 1, argv2, true, fd2) == ERROR){
         sysPipeClose(pipe);
         return ADD_PROC_ERROR;
     }
 
-    int endOfFile = EOF;
-    sysPipeWrite(pipe, (char *)&endOfFile);
+    char endOfFile = EOF;
+    sysPipeWrite(pipe, &endOfFile);
 
     sysPipeClose(pipe);
     printk("\n");

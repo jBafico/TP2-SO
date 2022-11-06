@@ -67,39 +67,42 @@ static unsigned int bcdToDec(unsigned char time){
     return (time >> 4) * 10 + (time & 0x0F);
 }
 
-int sys_read(char * buff, uint64_t length){
+int sys_read(uint8_t fd, char * buff, uint64_t length){
     int writer;
-    int i;
+    int i = 0;
     char * kbdbuffer = getBuffer(&writer);
-    uint8_t fd = getCurrentProcessInputFD();
 
-    if (reader == writer || fd != STDIN)
+    if(fd != STDERR && fd != STDERRDER && fd != STDERRIZQ && fd != STDERRBOTH)
+        fd = getCurrentProcessInputFD();
+
+    if (reader == writer)
         return -1;
 
     uint8_t addedNewLine = FALSE;
     if(fd == STDIN){
-        for (i = 0; i < length && !addedNewLine; i++, reader = ( reader + 1) % MAX_BUFF){
+        for (; i < length && !addedNewLine; i++, reader = ( reader + 1) % MAX_BUFF){
             buff[i] = kbdbuffer[reader];
             if (kbdbuffer[reader] == '\n')
                 addedNewLine = TRUE;
         }
     }
     else
-        i = pipeRead(fd);
+        buff[i++] = pipeRead(fd);
 
     return i;
 }
 
-int sys_write(char * buff, uint64_t length){
+int sys_write(uint8_t fd, char * buff, uint64_t length){
     if(buff == NULL)
         return 0;
 
-    uint8_t fd = getCurrentProcessOutputFD();
     uint8_t color = White;
 
     //seteo color rojo en caso de que sea STDERR
     if (fd == STDERR || fd == STDERRDER ||fd == STDERRIZQ ||  fd == STDERRBOTH)
         color = Red;
+    else
+        fd = getCurrentProcessOutputFD();
 
     int i;
     if(fd == STDOUT){
@@ -114,14 +117,8 @@ int sys_write(char * buff, uint64_t length){
                 ncPrintCharFdAttribute(fd, buff[i], color, Black);
         }
     }
-    else{
-        ncPrint("In pipe");
-        ncNewline();
-        ncPrint(buff);
-        ncNewline();
+    else
         i = pipeWrite(fd, buff);
-    }
-
 
     return i;
 }
@@ -175,9 +172,9 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
     int FD[]={STDIN, STDOUT};
     switch (code) {
         case SYS_READ: //arg0: fd , arg1: buff, arg2: length
-            return sys_read( (char *) arg0, (uint64_t) arg1);
+            return sys_read( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
         case SYS_WRITE: //arg0: fd , arg1: buff, arg2: length
-            return sys_write( (char *) arg0, (uint64_t) arg1);
+            return sys_write( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
         case SYS_TIME: //arg0: clock * donde va a guardar la info
             sys_time((clock *) arg0);
             break;

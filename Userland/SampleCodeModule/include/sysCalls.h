@@ -9,8 +9,8 @@
 
 typedef enum {READY, BLOCKED, TERMINATED} pState;
 
-int sysWrite(const char *c, uint64_t length);
-int sysRead(const char *c, uint64_t length);
+int sysWrite(uint8_t fd, const char *c, uint64_t length);
+int sysRead(uint8_t fd, const char *c, uint64_t length);
 void sysTime(clock * cptr);
 int sysInfoReg(uint64_t * regs);
 int sysPrintMem(uint8_t * mem, uint64_t address);
