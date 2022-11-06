@@ -23,15 +23,17 @@ typedef struct processInfo{
 } processInfo;
 
 void ps(int argc, char ** argv);
-void unblock(int arg, char ** argv);
+void unblock(int argc, char ** argv);
 void block(int argc, char ** argv);
 void nice(int argc, char ** argv);
-void kill(int arg, char ** argv);
+void kill(int argc, char ** argv);
 void loop(int argc, char ** argv);
 void mem(int argc, char ** argv);
-void semInfo(int arg, char ** argv);
-void cat(int arg, char ** argv);
-void wc(int arg, char ** argv);
-void filter(int arg, char ** argv);
+void semInfo(int argc, char ** argv);
+void cat(int argc, char ** argv);
+void wc(int argc, char ** argv);
+void filter(int argc, char ** argv);
+void semTest(int argc, char ** argv);
+void semNoSyncTest(int argc, char ** argv);
 
 #endif //SAMPLECODEMODULE_COMMANDS_H

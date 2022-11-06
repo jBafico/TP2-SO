@@ -16,18 +16,19 @@ void slowInc(uint64_t *p, uint64_t inc){
 }
 
 void my_process_inc(int argc, char *argv[]){
-  uint64_t n;
-  uint8_t inc;
-  uint8_t use_sem;
+  int64_t n;
+  int64_t inc;
+  int64_t use_sem;
 
-  if (argc != 3) return;
+  if (argc != 4) return;
 
-  if ((n = satoi(argv[0])) <= 0) return ;
-  if ((inc = satoi(argv[1])) == 0) return ;
-  if ((use_sem = satoi(argv[2])) < 0) return ;
+  if ((n = satoi(argv[1])) <= 0) return ;
+  if ((inc = satoi(argv[2])) == 0) return ;
+  if ((use_sem = satoi(argv[3])) < 0) return ;
+
 
   if (use_sem)
-    if (!sysSemOpen(SEM_ID, 1)){
+    if (sysSemOpen(SEM_ID, 1) == ERROR){
       printk("test_sync: ERROR opening semaphore\n");
       return;
     }
@@ -35,28 +36,25 @@ void my_process_inc(int argc, char *argv[]){
   uint64_t i;
   for (i = 0; i < n; i++){
     if (use_sem) sysSemWait(SEM_ID);
-      printk( inc > 0 ? "i":"d");
     slowInc(&global, inc);
     if (use_sem) sysSemPost(SEM_ID);
   }
 
   if (use_sem) sysSemClose(SEM_ID);
-  
+
 }
 
-void semSyncTest(int argc, char ** argv){ //{n, use_sem, 0}
+void semSyncTest(int argc, char ** argv){ //{n, use_sem}
   uint64_t pids[2 * PAIR_PROCESSES];
 
-  int mtx = sysSemOpen(SEM_ID,0);
-
-  char * argvDec[] = {"10000", "-1", "55", NULL};
-  char * argvInc[] = {"10000", "1","55", NULL};
+  char * argvDec[] = {"Decrement", argv[0], "-1", argv[1]};
+  char * argvInc[] = {"Increment", argv[0], "1",argv[1]};
 
   global = 0;
   uint64_t i;
   for(i = 0; i < PAIR_PROCESSES; i++){
-    pids[i] = sysAddProcess(my_process_inc, 3, argvDec,FOREGROUND,NULL);
-    pids[i + PAIR_PROCESSES] = sysAddProcess(my_process_inc, 3, argvInc,FOREGROUND,NULL);
+    pids[i] = sysAddProcess(my_process_inc, 4, argvDec,false,NULL);
+    pids[i + PAIR_PROCESSES] = sysAddProcess(my_process_inc, 4, argvInc,false,NULL);
   }
 
   for(i = 0; i < PAIR_PROCESSES; i++){

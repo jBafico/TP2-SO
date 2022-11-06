@@ -1,6 +1,6 @@
 #include <library.h>
 
-#define CANT_MESSAGES 18
+#define CANT_MESSAGES 19
 
 void help(int argc, char ** argv){
     char* helpMsg[]={ 
@@ -21,7 +21,8 @@ void help(int argc, char ** argv){
     "* memTest - Test para probar el manejo de memoria\n",
     "* prioTest - Test para probar el manejo de prioridades de procesos\n",
     "* processTest - Test para probar el algoritmo de scheduling de procesos\n",
-    "* semSyncTest - Test para probar la sincronizacion de semaforos\n"};
+    "* semSyncTest - Test para probar la sincronizacion de semaforos\n",
+    "* semNoSyncTest - Test para comparar resultado sin sincronizacion de semaforos\n"};
 
     printk("Las funciones disponibles para utilizar son:\n");
     for (int i = 0; i < CANT_MESSAGES; i++)

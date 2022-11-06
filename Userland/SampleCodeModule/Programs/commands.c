@@ -1,6 +1,7 @@
 #include <commands.h>
 #include <sysCalls.h>
 #include <library.h>
+#include <semTest.h>
 
 #define MAXPROCESSES 20
 #define FIRSTARG 1
@@ -8,6 +9,8 @@
 #define MAXSEM 25
 
 #define SECS_LOOP 2
+
+#define QTY_LOOPS "10"
 
 void ps(int argc, char ** argv){
     processInfo processes[MAXPROCESSES];
@@ -45,18 +48,18 @@ void block(int argc, char ** argv){
     sysBlockProcess(pid);
 }
 
-void unblock(int arg, char ** argv){
+void unblock(int argc, char ** argv){
     int pid = myAtoi(argv[FIRSTARG]);
     sysReadyProcess(pid);
 }
 
-void kill(int arg, char ** argv){
+void kill(int argc, char ** argv){
     int pid = myAtoi(argv[FIRSTARG]);
     sysKillProcess(pid);
 }
 
 
-void semInfo(int arg, char ** argv){
+void semInfo(int argc, char ** argv){
     semaphoreData semaphores[MAXSEM];
     int activeSems = sysSemaphoreInfo(semaphores);
     for ( int i = 0; i < activeSems ; i++){
@@ -72,14 +75,14 @@ void semInfo(int arg, char ** argv){
 }
 
 
-void cat(int arg, char ** argv){
+void cat(int argc, char ** argv){
     char c;
     while ((c = getChar()) != EOF) {
         putCharacter(STDOUT, c);
     }
 }
 
-void wc(int arg, char ** argv){
+void wc(int argc, char ** argv){
     char c;
     int lines = 1;
     while ((c = getChar()) != EOF) {
@@ -91,7 +94,7 @@ void wc(int arg, char ** argv){
     printk("\nCantidad de lineas: %d\n", lines);
 }
 
-void filter(int arg, char ** argv){
+void filter(int argc, char ** argv){
     char c;
     while ((c = getChar()) != EOF) {
         if (!isVowel(c)) {
@@ -100,5 +103,13 @@ void filter(int arg, char ** argv){
     }
 }
 
+void semTest(int argc, char ** argv){
+    char * argvv[] = {QTY_LOOPS, "1"};
+    semSyncTest(2, argvv);
+}
 
 
+void semNoSyncTest(int argc, char ** argv){
+    char * argvv[] = {QTY_LOOPS, "0"};
+    semSyncTest(2, argvv);
+}
