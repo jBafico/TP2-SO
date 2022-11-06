@@ -24,6 +24,9 @@ void restartSCM();
 
 uint64_t * prepareRegisters();
 
+int strlen(const char * s);
+char * strcpy(char * dest, const char * src);
+
 void acquire(int *lock);
 void release(int *lock);
 int _xchg(int * lock, int val);

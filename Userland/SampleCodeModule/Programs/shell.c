@@ -26,7 +26,6 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
                                         {"prioTest",      &prioTest},
                                         {"processTest",   &processTest},
                                         {"semSyncTest",   &semSyncTest},
-                                 //       {"semNoSyncTest", &semNoSyncTest},
                                         {"kill",          &kill},
                                         {"nice",          &nice},
                                         {"block",         &block},
@@ -239,7 +238,7 @@ void stopForCommand(){
 
     currentLine[i] = 0;
 
-    char strings[AUXVECTORLENGTH][MAX_LEN_COMMAND] = {0};
+    char strings[AUXVECTORLENGTH][MAX_LEN_COMMAND] = {{0}};
     int argc = parseString(strings , currentLine);
     bool backgroundFlag = false;
 

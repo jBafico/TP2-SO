@@ -2,6 +2,7 @@
 #include <memManager.h>
 #include <interrupts.h>
 #include <lib.h>
+#include <naiveConsole.h>
 
 typedef struct {
     uint64_t gs;
@@ -28,7 +29,7 @@ typedef struct {
     uint64_t stackPointer;
     uint64_t ss;
     uint64_t base;
-} t_stackFrame;
+} fakeStack;
 
 static void init(int argc, char **argv);
 static int initializeProcessControlBlock(process *proc, char *name, uint8_t foreground, const int *fd);
@@ -46,20 +47,6 @@ static uint64_t cyclesLeft;
 static processList *processes;
 static processNode *currentProcess = NULL;
 static processNode *baseProcess;
-
-int strlen(const char * s){
-    int i;
-    for (i = 0 ; s[i] != 0 ; i++)
-        ;
-    return i;
-}
-
-char * strcpy(char * dest, const char * src){
-    for (int i = 0; src[i] != 0 ; i++){
-        dest[i] = src[i];
-    }
-    return dest;
-}
 
 int queueIsEmpty(processList *prs) { return prs->size == 0; }
 
@@ -155,33 +142,29 @@ void * schedule(void *stackPointer) {
     return currentProcess->proc.stackPointer;
 }
 
-int addProcess(void (*entryPoint)(int, char **), int argc, char **argv,
-               int foreground, int *fd) {
-    if (entryPoint == NULL) {
-        return -1;
-    }
+int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int foreground, int *fd) {
+    if (entryPoint == NULL)
+        return ERROR;
 
     processNode *newProcess = malloc(sizeof(processNode));
-    if (newProcess == NULL) {
-        return -1;
-    }
+    if (newProcess == NULL)
+        return ERROR;
 
-    if (initializeProcessControlBlock(&newProcess->proc, argv[0], foreground,
-                                      fd) == -1) {
+    if (initializeProcessControlBlock(&newProcess->proc, argv[0], foreground, fd) == ERROR) {
         free(newProcess);
-        return -1;
+        return ERROR;
     }
 
     char **arguments = malloc(sizeof(char *) * argc);
     if (arguments == NULL) {
         free(newProcess);
-        return -1;
+        return ERROR;
     }
 
-    if (getArguments(arguments, argv, argc) == -1) {
+    if (getArguments(arguments, argv, argc) == ERROR) {
         free(newProcess);
         free(arguments);
-        return -1;
+        return ERROR;
     }
 
     newProcess->proc.argc = argc;
@@ -221,7 +204,7 @@ int blockProcess(uint64_t pid) {
 
 int readyProcess(uint64_t pid) { return setState(pid, READY); }
 
-int getProcessPID() { return currentProcess ? currentProcess->proc.pid : -1; }
+int getProcessPID() { return currentProcess ? currentProcess->proc.pid : ERROR; }
 
 
 void yield() {
@@ -232,7 +215,7 @@ void yield() {
 int setState(uint64_t pid, pState newState) {
     processNode *process = getProcess(pid);
     if (process == NULL || process->proc.state == TERMINATED) {
-        return -1;
+        return ERROR;
     }
 
     if (process == currentProcess) {
@@ -279,7 +262,7 @@ int currentProcessIsForeground() {
     if (currentProcess) {
         return currentProcess->proc.foreground;
     } else {
-        return -1;
+        return ERROR;
     }
 }
 
@@ -287,7 +270,7 @@ int getCurrentProcessInputFD() {
     if (currentProcess) {
         return currentProcess->proc.fds[0];
     } else {
-        return -1;
+        return ERROR;
     }
 }
 
@@ -295,7 +278,7 @@ int getCurrentProcessOutputFD() {
     if (currentProcess) {
         return currentProcess->proc.fds[1];
     } else {
-        return -1;
+        return ERROR;
     }
 }
 
@@ -320,7 +303,7 @@ static int initializeProcessControlBlock(process *proc, char *name, uint8_t fore
     proc->pid = getPID();
     proc->ppid = (currentProcess == NULL ? 0 : currentProcess->proc.pid);
     if (foreground > 1) {
-        return -1;
+        return ERROR;
     }
 
     proc->foreground = (currentProcess == NULL
@@ -333,11 +316,11 @@ static int initializeProcessControlBlock(process *proc, char *name, uint8_t fore
     proc->fds[1] = (fd ? fd[1] : 1);
 
     if (proc->basePointer == NULL) {
-        return -1;
+        return ERROR;
     }
 
     proc->basePointer = (void *)((char *)proc->basePointer + SIZE_OF_STACK - 1);
-    proc->stackPointer = (void *)((t_stackFrame *)proc->basePointer - 1);
+    proc->stackPointer = (void *)((fakeStack *)proc->basePointer - 1);
     return 0;
 }
 
@@ -350,7 +333,7 @@ static int getArguments(char **to, char **from, int count) {
                 free(to[i]);
                 i--;
             }
-            return -1;
+            return ERROR;
         }
         strcpy(to[i], from[i]);
     }
@@ -369,7 +352,7 @@ static void beginProcessHandler(void (*entryPoint)(int, char **), int argc, char
 
 static void initializeProcessStackFrame(void (*entryPoint)(int, char **),
                                         int argc, char **argv, void *basePointer) {
-    t_stackFrame *stackFrame = (t_stackFrame *)basePointer - 1;
+    fakeStack *stackFrame = (fakeStack *)basePointer - 1;
 
     stackFrame->gs = 0x001;
     stackFrame->fs = 0x002;
@@ -437,8 +420,8 @@ int getProcessList(processInfo * ps) {
     strcpy(ps[i].type, currentProcess->proc.foreground ? "Foreground" : "Background");
     strcpy(ps[i].state, "Running");
     ps[i].pid = currentProcess->proc.pid;
-    ps[i].basePointer = currentProcess->proc.basePointer;
-    ps[i].stackPointer = currentProcess->proc.stackPointer;
+    ps[i].basePointer = (uint64_t) currentProcess->proc.basePointer;
+    ps[i].stackPointer = (uint64_t) currentProcess->proc.stackPointer;
     i++;
     return i;
 }

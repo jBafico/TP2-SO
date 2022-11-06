@@ -12,6 +12,7 @@
 #define SMALLBUFFER 64
 
 #include <stdint.h>
+
 typedef struct processInfo{
     uint64_t pid;
     char name[EXCHANGEBUFFERSIZE];

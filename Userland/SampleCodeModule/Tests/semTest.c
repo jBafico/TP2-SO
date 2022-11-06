@@ -23,7 +23,7 @@ void my_process_inc(int argc, char *argv[]){
   uint8_t inc;
   uint8_t use_sem;
 
-  if (argc != 3) return -1;
+  if (argc != 3) return;
 
   if ((n = satoi(argv[0])) <= 0) return ;
   if ((inc = satoi(argv[1])) == 0) return ;
@@ -47,7 +47,7 @@ void my_process_inc(int argc, char *argv[]){
   
 }
 
-void semSyncTest(uint64_t argc, char *argv[]){ //{n, use_sem, 0}
+void semSyncTest(int argc, char ** argv){ //{n, use_sem, 0}
   uint64_t pids[2 * PAIR_PROCESSES];
 
   int mtx = sysSemOpen(SEM_ID,0);
@@ -69,8 +69,6 @@ void semSyncTest(uint64_t argc, char *argv[]){ //{n, use_sem, 0}
   }
 
   printk("Final value: %d\n", global);
-
-  return 0;
 }
 
 
