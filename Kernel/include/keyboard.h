@@ -18,10 +18,6 @@
 
 void ncClear();
 void keyboard_handler();
-//devuelve buffer terminado en \n --> lo vamos a cambiar a string
 char * getBuffer(int * writerVal);
-char getCharKernel();
-int getCtrlFlag();
-void cleanKeyboardBuffer();
 
 #endif //KERNEL_KEYBOARD_H

@@ -33,7 +33,6 @@ void initMemMan(void *heapBase, size_t heapSize) {
     freePtr->data.ptr = freePtr;
 
     currentMemInfo.allocatedBytes = 0;
-    currentMemInfo.availableBytes = totalUnits;
     currentMemInfo.totalMemory = heapSize;
 }
 
@@ -71,6 +70,8 @@ void * malloc(uint64_t nBytes) {
 
         prevPtr = currentNode;
     }
+    currentMemInfo.availableBytes -= ( nUnits + sizeof(Header));
+    currentMemInfo.allocatedBytes += (nUnits + sizeof(Header));
     return ret;
 }
 
@@ -87,9 +88,7 @@ void free(void *block) {
     }
 
     block = NULL;
-
     bool found = false; //flag to check if block to free is in mem
-
     for (currentNode = freePtr; !(freeBlock > currentNode && freeBlock < currentNode->data.ptr);currentNode = currentNode->data.ptr) 
         {
             if (freeBlock == currentNode || freeBlock == currentNode->data.ptr) {
@@ -109,6 +108,8 @@ void free(void *block) {
         return;     //block does not exist
     }
 
+    currentMemInfo.availableBytes += freeBlock->data.size + sizeof(Header);
+    currentMemInfo.allocatedBytes -= freeBlock->data.size + sizeof(Header);
     if (freeBlock + freeBlock->data.size == currentNode->data.ptr) { // connects next block
         freeBlock->data.size += currentNode->data.ptr->data.size;
 
@@ -126,7 +127,6 @@ void free(void *block) {
     } else {
         currentNode->data.ptr = freeBlock;
     }
-
     freePtr = currentNode;
 }
 

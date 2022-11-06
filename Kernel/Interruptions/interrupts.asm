@@ -262,6 +262,7 @@ _int80Handler:
     push rbp
     mov rbp, rsp
 
+    push r8
     push rcx
     push rdx
     push rsi

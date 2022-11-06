@@ -137,11 +137,6 @@ char * getBuffer(int * writerVal){
     return keyboardBuffer;
 }
 
-void cleanKeyboardBuffer(){
-    char c;
-    while (sys_read(STDIN, &c, 1)!=-1);
-}
-
 
 
 

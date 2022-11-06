@@ -65,8 +65,6 @@ void initalizeShell(int argc, char ** argv){
     printk("OMG USER HI!! Welcome to the LettuceOS Shell!\n\n");
     help(0,NULL);
 
-
-
     while (1){
         printk("> ");
         stopForCommand();

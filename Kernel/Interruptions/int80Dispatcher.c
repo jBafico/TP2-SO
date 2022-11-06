@@ -67,43 +67,61 @@ static unsigned int bcdToDec(unsigned char time){
     return (time >> 4) * 10 + (time & 0x0F);
 }
 
-int sys_read(uint8_t fd, char * buff, uint64_t length){
+int sys_read(char * buff, uint64_t length){
     int writer;
     int i;
     char * kbdbuffer = getBuffer(&writer);
+    uint8_t fd = getCurrentProcessInputFD();
 
     if (reader == writer || fd != STDIN)
         return -1;
 
     uint8_t addedNewLine = FALSE;
-    for (i = 0; i < length && !addedNewLine; i++, reader = ( reader + 1) % MAX_BUFF){
-        buff[i] = kbdbuffer[reader];
-        if (kbdbuffer[reader] == '\n')
-            addedNewLine = TRUE;
+    if(fd == STDIN){
+        for (i = 0; i < length && !addedNewLine; i++, reader = ( reader + 1) % MAX_BUFF){
+            buff[i] = kbdbuffer[reader];
+            if (kbdbuffer[reader] == '\n')
+                addedNewLine = TRUE;
+        }
     }
+    else
+        i = pipeRead(fd);
+
     return i;
 }
 
-int sys_write(uint8_t fd, char * buff, uint64_t length){
+int sys_write(char * buff, uint64_t length){
     if(buff == NULL)
         return 0;
 
+    uint8_t fd = getCurrentProcessOutputFD();
     uint8_t color = White;
+
     //seteo color rojo en caso de que sea STDERR
     if (fd == STDERR || fd == STDERRDER ||fd == STDERRIZQ ||  fd == STDERRBOTH)
         color = Red;
 
     int i;
-    for (i = 0; i < length; ++i) {
-        if ( buff[i] == '\n')
-            ncNewLineFd(fd);
-        else if ( buff[i] == '\b')
-            ncDeleteChar();
-        else if(buff[i]=='\t')
-            ncPrintFdAttribute(fd, "   ", color, Black);
-        else
-            ncPrintCharFdAttribute(fd, buff[i], color, Black);
+    if(fd == STDOUT){
+        for (i = 0; i < length && buff[i] != '\0'; ++i) {
+            if ( buff[i] == '\n')
+                ncNewLineFd(fd);
+            else if ( buff[i] == '\b')
+                ncDeleteChar();
+            else if(buff[i]=='\t')
+                ncPrintFdAttribute(fd, "   ", color, Black);
+            else
+                ncPrintCharFdAttribute(fd, buff[i], color, Black);
+        }
     }
+    else{
+        ncPrint("In pipe");
+        ncNewline();
+        ncPrint(buff);
+        ncNewline();
+        i = pipeWrite(fd, buff);
+    }
+
 
     return i;
 }
@@ -154,11 +172,12 @@ int sys_mem(uint8_t * mem, uint64_t address){
 
 uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
     _sti();
+    int FD[]={STDIN, STDOUT};
     switch (code) {
         case SYS_READ: //arg0: fd , arg1: buff, arg2: length
-            return sys_read( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
+            return sys_read( (char *) arg0, (uint64_t) arg1);
         case SYS_WRITE: //arg0: fd , arg1: buff, arg2: length
-            return sys_write( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
+            return sys_write( (char *) arg0, (uint64_t) arg1);
         case SYS_TIME: //arg0: clock * donde va a guardar la info
             sys_time((clock *) arg0);
             break;
@@ -176,7 +195,7 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
             free((void*) arg0);
             break;
         case SYS_ADD_PROCESS:
-            return addProcess((void(*)(int, char**))arg0, (int) arg1, (char**) arg2, (int) arg3, (int *) arg4);
+            return addProcess((void(*)(int, char**))arg0, (int) arg1, (char**) arg2, (int) arg3, ((int *) arg4) == NULL ? FD : ((int *) arg4));
         case SYS_WAIT:
             wait((int) arg0);
             break;
