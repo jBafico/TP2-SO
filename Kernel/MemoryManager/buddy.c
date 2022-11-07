@@ -1,5 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <memManager.h>
 #define STRUCT_POS 0x600000
 #define MIN_BLOCK 64
@@ -53,7 +51,7 @@ static BNode *newBNode(memoryManagerADT mm, size_t size, void *memDir, size_t le
 
 void initMemMan(void *heapBase, size_t heapSize)
 {
-    if (size < MIN_BLOCK || size % 2 != 0)
+    if (heapSize < MIN_BLOCK || heapSize % 2 != 0)
     {
         return NULL;
     }
@@ -178,29 +176,13 @@ void free(void *block)
     buddyFreeMemoryRec(mm, block, mm->root);
 }
 
-// void printStatus()
-// {
-//     char aux[24];
-//     ncPrint("Estado de la memoria:",12);
-//     ncNewline();
-//     ncPrint(" -Tipo de memoria usada: buddy.", 15);
-//     ncNewline();
-//     ncPrint(" -Tamanio de memoria: ", 15);
-//     uintToBase( (uint64_t) mm->memorySize, aux, 10);
-//     ncPrint(aux, 15);
-//     ncNewline();
-//     ncPrint(" -Tamanio de memoria utilizada: ", 15);
-//     uintToBase( (uint64_t) mm->usedSize, aux, 10);
-//     ncPrint(aux, 15);
-//     ncNewline();
-//     ncPrint(" -Tamanio de memoria libre: ", 15);
-//     uintToBase((uint64_t) (mm->memorySize - mm->usedSize), aux, 10);
-//     ncPrint(aux, 15);
-//     ncNewline();
-//     ncPrint(" -Tamanio minimo del bloque: ",15);
-//     uintToBase((uint64_t) MIN_BLOCK, aux, 10);
-//     ncPrint(aux, 15);
-//     ncNewline();
-// }
+
+void memoryInformation(memInfo * m){
+    m->allocatedBytes = mm->usedSize;
+    m->availableBytes = mm->memorySize - mm->usedSize;
+    m->totalMemory = mm->memorySize;
+}
+
+
 
 #endif

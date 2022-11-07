@@ -2,6 +2,17 @@ MM = NORMAL
 
 all:  bootloader kernel userland image
 
+
+
+gdb: all kernel_elf userland_elf
+
+
+kernel_elf:
+	cd Kernel; make gdb
+
+userland_elf:
+	cd Userland; make gdb
+
 bootloader:
 	cd Bootloader; make all
 

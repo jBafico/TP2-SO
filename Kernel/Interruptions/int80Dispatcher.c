@@ -228,6 +228,9 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
             return getProcessList((processInfo *) arg0);
         case SYS_SEMAPHORE_INFO:
             return semaphoreInfo( (semaphoreData *) arg0);
+        case SYS_MEM_INFO:
+            memoryInformation((memInfo *)arg0);
+            break;
         case SYS_YIELD:
             yield();
             break;

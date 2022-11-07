@@ -4,7 +4,13 @@
 #ifdef NORMAL
 //Implementation Based on K&R Book
 
+
+
+
+
+
 typedef long Align;     //To align upper limit
+
 
 typedef union header {  //Block Header
     struct {
@@ -15,6 +21,8 @@ typedef union header {  //Block Header
     Align x;                //Obliga a la alineación de bloques
 
 } Header;
+
+#define RETRIEVEBYTES(units) ( (units - 1)*(sizeof(Header)) - sizeof(Header) + 1 )
 
 
 memInfo currentMemInfo;
@@ -60,9 +68,6 @@ void * malloc(uint64_t nBytes) {
             ret = currentNode + 1;
             allocFlag = false;  //Finished allocating
 
-            //contabilizamos uso de heap
-            currentMemInfo.allocatedBytes += nUnits;
-            currentMemInfo.availableBytes -= nUnits;
         }
         if (currentNode == freePtr) {
             return NULL;
@@ -70,8 +75,6 @@ void * malloc(uint64_t nBytes) {
 
         prevPtr = currentNode;
     }
-    currentMemInfo.availableBytes -= ( nUnits + sizeof(Header));
-    currentMemInfo.allocatedBytes += (nUnits + sizeof(Header));
     return ret;
 }
 
@@ -108,8 +111,6 @@ void free(void *block) {
         return;     //block does not exist
     }
 
-    currentMemInfo.availableBytes += freeBlock->data.size + sizeof(Header);
-    currentMemInfo.allocatedBytes -= freeBlock->data.size + sizeof(Header);
     if (freeBlock + freeBlock->data.size == currentNode->data.ptr) { // connects next block
         freeBlock->data.size += currentNode->data.ptr->data.size;
 
@@ -131,9 +132,23 @@ void free(void *block) {
 }
 
 void memoryInformation(memInfo * m){
-    m->allocatedBytes = currentMemInfo.allocatedBytes;
-    m->availableBytes = currentMemInfo.availableBytes;
-    m->totalMemory = currentMemInfo.totalMemory;
+    Header *first;
+    Header *current;
+    first = current = freePtr;
+    m->totalMemory = RETRIEVEBYTES(totalUnits);
+    if (freePtr == NULL) {
+      return;
+    }
+    uint64_t availableUnits = 0;
+    bool firstEntry = true;
+    while  ( firstEntry || first != current) {
+        firstEntry = false;
+        availableUnits += current->data.size;
+        current = current->data.ptr;
+    }
+    m->availableBytes = RETRIEVEBYTES(availableUnits);
+    m->allocatedBytes = RETRIEVEBYTES(totalUnits - availableUnits);
 }
 
 #endif
+

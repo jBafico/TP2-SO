@@ -3,6 +3,10 @@ include Makefile.inc
 SAMPLE_DATA=0001-sampleDataModule.bin
 
 all: sampleCodeModule sampleDataModule
+gdb: all sampleCodeModuleGDB
+
+sampleCodeModuleGDB:
+	cd SampleCodeModule; make gdb
 
 sampleCodeModule:
 	cd SampleCodeModule; make

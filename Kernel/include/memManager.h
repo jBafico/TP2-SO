@@ -14,5 +14,6 @@ typedef struct info {
 void initMemMan(void *heapBase, size_t heapSize);
 void * malloc(uint64_t nBytes);
 void free(void *block);
+void memoryInformation(memInfo * m);
 
 #endif //TP2_SO_MEMMANAGER_H
