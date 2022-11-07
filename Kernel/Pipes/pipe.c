@@ -4,6 +4,7 @@
 #include <semaphores.h>
 #include <lib.h>
 #include <memManager.h>
+#include <pipe.h>
 
 #define PIPESIZE 512
 
@@ -179,4 +180,27 @@ int pipeRead(int pipeId){
     semPost(p->writeLock);
 
     return c;
+}
+
+int pipeInfo(pipeData * s){
+    if(pipes==NULL){
+        ncPrint("There are no pipes");
+        ncNewline();
+        return 0;
+    }
+    pipeNode* current = pipes->first;
+    if (current == NULL) {
+        ncPrint("There are no pipes");
+        ncNewline();
+        return 0;
+    }
+
+    int i;
+    for (i = 0; i < pipes->size; i++, current = current->next) {
+        s[i].id=current->p->id;
+        s[i].processesUsing=current->p->processesUsing;
+        strcpy(s[i].readState, current->p->readLock ? "Open" : "Blocked");
+        strcpy(s[i].writeState, current->p->writeLock ? "Open" : "Blocked");
+    }
+    return i;
 }

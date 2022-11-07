@@ -9,6 +9,7 @@
 #define FIRSTARG 1
 #define SECONDARG 2
 #define MAXSEM 25
+#define MAXPIPE 25
 
 #define SECS_LOOP 2
 
@@ -60,6 +61,17 @@ void kill(int argc, char ** argv){
     sysKillProcess(pid);
 }
 
+void pipeInfo(int argc, char ** argv){
+    pipeData pipes[MAXPIPE];
+    int activePipes= sysPipeInfo(pipes);
+    for (int i = 0; i < activePipes; i++)
+    {
+        pipeData current = pipes[i];
+        printk("Pipe ID: %d | Read Status: %s | Write Status: %s | Processes conected: %d\n",
+        current.id, current.readState, current.writeState, current.processesUsing);
+    }
+    printk("\n");
+}
 
 void semInfo(int argc, char ** argv){
     semaphoreData semaphores[MAXSEM];
@@ -79,7 +91,6 @@ void semInfo(int argc, char ** argv){
         printk("\n");
     }
 }
-
 
 void cat(int argc, char ** argv){
     char c = 0;

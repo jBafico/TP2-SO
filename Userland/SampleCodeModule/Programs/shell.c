@@ -11,6 +11,7 @@
 #include <mmTest.h>
 #include <prioTest.h>
 #include <phylo.h>
+#include <pipeTest.h>
 
 typedef struct command{
     char * name;
@@ -23,12 +24,13 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
                                         {"mem",           &mem},
                                         {"ps",            &ps},
                                         {"sem",           &semInfo},
-//                                        {"pipe",          &pipe},
+                                        {"pipe",          &pipeInfo},
                                         {"memTest",       &memTest},
                                         {"prioTest",      &prioTest},
                                         {"processTest",   &processTest},
                                         {"semSyncTest",   &semTest},
-                                          {"semNoSyncTest",   &semNoSyncTest},
+                                        {"semNoSyncTest",   &semNoSyncTest},
+                                        {"pipeTest",        &pipeTest},
                                         {"kill",          &kill},
                                         {"nice",          &nice},
                                         {"block",         &block},
@@ -39,11 +41,11 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
 //
 #define CANT_PIPE_COMMS 5
 command pipeComms[CANT_PIPE_COMMS] = {
-                                        {"cat", &cat},
+                                      {"cat", &cat},
                                       {"wc", &wc},
                                       {"loop", &loop},
                                       {"filter", &filter},
-                               {"phylo", &phyloProblem}
+                                      {"phylo", &phyloProblem}
 };
 
 

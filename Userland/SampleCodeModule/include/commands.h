@@ -29,6 +29,7 @@ void nice(int argc, char ** argv);
 void kill(int argc, char ** argv);
 void loop(int argc, char ** argv);
 void mem(int argc, char ** argv);
+void pipeInfo(int argc, char ** argv);
 void semInfo(int argc, char ** argv);
 void cat(int argc, char ** argv);
 void wc(int argc, char ** argv);

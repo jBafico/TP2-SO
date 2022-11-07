@@ -56,8 +56,16 @@ typedef struct semaphore {
     uint16_t listeningProcesses;
 } semaphoreData;
 
+typedef struct pipeData {
+    int id; // id of the pipe
+    char readState[SMALLBUFFER];    // read fd is blocked
+    char writeState[SMALLBUFFER];  // write fd is blocked
+    int processesUsing;
+} pipeData;
+
 int sysMemInfo(memInfo * mem);
 int sysSemaphoreInfo(semaphoreData * s);
+int sysPipeInfo(pipeData * p);
 
 
 #endif //SAMPLECODEMODULE_SYSCALLS_H

@@ -29,7 +29,7 @@ GLOBAL sysPipeRead
 GLOBAL sysPipeWrite
 GLOBAL sysYield
 GLOBAL sysMemInfo
-
+GLOBAL sysPipeInfo
 GLOBAL sysSemaphoreInfo
 
 
@@ -62,11 +62,21 @@ section .data
     SYSYIELD equ 93
     SYSMEMINFO equ 94
     SYSSEMAPHOREINFO equ 95
+    SYSPIPEINFO equ 96
                     
     SYSTIME equ 201
     SYSGETPROCESSLIST equ 202
 
 section .text
+sysPipeInfo:
+    push rbp
+    mov rbp, rsp
+    mov rax, SYSPIPEINFO
+
+    int 80h
+    mov rsp, rbp
+    pop rbp
+    ret
 
 sysSemaphoreInfo:
     push rbp

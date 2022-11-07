@@ -2,7 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <library.h>
 
-#define CANT_MESSAGES 19
+#define CANT_MESSAGES 20
 
 void help(int argc, char ** argv){
     char* helpMsg[]={ 
@@ -24,7 +24,8 @@ void help(int argc, char ** argv){
     "* prioTest - Test para probar el manejo de prioridades de procesos\n",
     "* processTest - Test para probar el algoritmo de scheduling de procesos\n",
     "* semSyncTest - Test para probar la sincronizacion de semaforos\n",
-    "* semNoSyncTest - Test para comparar resultado sin sincronizacion de semaforos\n"};
+    "* semNoSyncTest - Test para comparar resultado sin sincronizacion de semaforos\n",
+    "* pipeTest - Test para probar el funcionamiento de pipes en background"};
 
     printk("Las funciones disponibles para utilizar son:\n");
     for (int i = 0; i < CANT_MESSAGES; i++)
