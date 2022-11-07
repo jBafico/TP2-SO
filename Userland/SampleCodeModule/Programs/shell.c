@@ -247,12 +247,12 @@ void stopForCommand(){
     if(argc > 0){
         char * argv[AUXVECTORLENGTH] = {0};
         prepareArgv(argv, strings, argc);
-        bool backgroundFlag = false;
 
         //Pipe functions do not recieve arguments, so format will be "func1 | func2"
         if(strcmp(strings[1],PIPE) == 0)
             handlePipe(argv, argc);
         else{
+            bool backgroundFlag = false;
             if(argc > 1 && strcmp(strings[argc-1],AMPER) == 0){
                 backgroundFlag = true;
                 argc--;
