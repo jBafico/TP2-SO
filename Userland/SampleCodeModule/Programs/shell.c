@@ -18,19 +18,17 @@ typedef struct command{
     void (* function) (int, char **);
 }command;
 
-#define CANT_NO_PIPE_COMMS 23
+#define CANT_NO_PIPE_COMMS 15
 command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
                                         {"time",          &time},
                                         {"mem",           &mem},
                                         {"ps",            &ps},
                                         {"sem",           &semInfo},
-                                        {"pipe",          &pipeInfo},
                                         {"memTest",       &memTest},
                                         {"prioTest",      &prioTest},
                                         {"processTest",   &processTest},
                                         {"semSyncTest",   &semTest},
                                         {"semNoSyncTest",   &semNoSyncTest},
-                                        {"pipeTest",        &pipeTest},
                                         {"kill",          &kill},
                                         {"nice",          &nice},
                                         {"block",         &block},
@@ -39,14 +37,15 @@ command noPipeComms[CANT_NO_PIPE_COMMS]= {{"help",     &help},
                                         };
 
 //
-#define CANT_PIPE_COMMS 5
+#define CANT_PIPE_COMMS 6
 command pipeComms[CANT_PIPE_COMMS] = {
                                       {"cat", &cat},
                                       {"wc", &wc},
                                       {"loop", &loop},
                                       {"filter", &filter},
-                                      {"phylo", &phyloProblem}
-};
+                                      {"phylo", &phyloProblem},
+                                      {"pipe",          &pipeInfo}
+                                    };
 
 
 

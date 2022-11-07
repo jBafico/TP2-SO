@@ -31,6 +31,7 @@ GLOBAL sysYield
 GLOBAL sysMemInfo
 GLOBAL sysPipeInfo
 GLOBAL sysSemaphoreInfo
+GLOBAL sysGetProcFds
 
 
 section .data
@@ -63,6 +64,7 @@ section .data
     SYSMEMINFO equ 94
     SYSSEMAPHOREINFO equ 95
     SYSPIPEINFO equ 96
+    SYSGETPROCFDS equ 97
                     
     SYSTIME equ 201
     SYSGETPROCESSLIST equ 202
@@ -409,6 +411,17 @@ sysYield:
     push rbp
     mov rbp, rsp
     mov rax, SYSYIELD
+
+    int 80h
+    mov rsp, rbp
+    pop rbp
+    ret
+
+; void sysGetProcFds(int * fds);
+sysGetProcFds:
+    push rbp
+    mov rbp, rsp
+    mov rax, SYSGETPROCFDS
 
     int 80h
     mov rsp, rbp

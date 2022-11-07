@@ -95,4 +95,5 @@ void yield();
 int setState(uint64_t pid, pState newState);
 void setPriority(uint64_t pid, int newPriority);
 int getProcessList(processInfo * ps);
+void getProcessFDS(int * fds);
 #endif //SCHEDULER_H

@@ -69,8 +69,6 @@ void initMemMan(void *heapBase, size_t heapSize)
     mm->root->memDir = mm->memoryDir;
     mm->root->level = 0;
     mm->root->size = heapSize;
-
-
 }
 
 static void *allocRecursive(BNode *current, size_t size, memoryManagerADT mm)
@@ -173,18 +171,14 @@ static int buddyFreeMemoryRec(memoryManagerADT mm, void *p, BNode *node)
     return 0;
 }
 
-void free(void *block)
-{
+void free(void *block){
     buddyFreeMemoryRec(mm, block, mm->root);
 }
-
 
 void memoryInformation(memInfo * m){
     m->allocatedBytes = mm->usedSize;
     m->availableBytes = mm->memorySize - mm->usedSize;
     m->totalMemory = mm->memorySize;
 }
-
-
 
 #endif

@@ -158,10 +158,14 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
     return newProcess->proc.pid;
 }
 
-int killProcess(uint64_t p) {
-    int resPID = setState(p, TERMINATED);
+int killProcess(uint64_t pid) {
+    //Shell and base process cannot be killed
+    if(pid <= 2)
+        return ERROR;
 
-    if (p == currentProcess->proc.pid)
+    int resPID = setState(pid, TERMINATED);
+
+    if (pid == currentProcess->proc.pid)
         forceTimerTick();
 
     return resPID;
@@ -396,4 +400,9 @@ int getProcessList(processInfo * ps) {
     ps[i].stackPointer = (uint64_t) currentProcess->proc.stackPointer;
     i++;
     return i;
+}
+
+void getProcessFDS(int * fds){
+    fds[0]=currentProcess->proc.fds[0];
+    fds[1]=currentProcess->proc.fds[1];
 }

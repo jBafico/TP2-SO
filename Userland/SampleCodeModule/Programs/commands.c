@@ -58,18 +58,23 @@ void unblock(int argc, char ** argv){
 
 void kill(int argc, char ** argv){
     int pid = myAtoi(argv[FIRSTARG]);
-    sysKillProcess(pid);
+    if(sysKillProcess(pid) == ERROR)
+        printErr("Process not found or can't be killed\n");
 }
 
 void pipeInfo(int argc, char ** argv){
     pipeData pipes[MAXPIPE];
     int activePipes= sysPipeInfo(pipes);
-    for (int i = 0; i < activePipes; i++)
-    {
+
+    if(activePipes == 0)
+        printk("There are no pipes\n");
+
+    for (int i = 0; i < activePipes; i++){
         pipeData current = pipes[i];
         printk("Pipe ID: %d | Read Status: %s | Write Status: %s | Processes conected: %d\n",
         current.id, current.readState, current.writeState, current.processesUsing);
     }
+
     printk("\n");
 }
 
@@ -93,9 +98,11 @@ void semInfo(int argc, char ** argv){
 }
 
 void cat(int argc, char ** argv){
+    printk("In cat bbta\n");
     char c = 0;
     while ((c = getChar()) != EOF) {
-        putCharacter(STDOUT, c);
+        if(c != ERROR)
+            putCharacter(STDOUT, c);
     }
     putCharacter(STDOUT, '\n');
 }
@@ -104,9 +111,11 @@ void wc(int argc, char ** argv){
     char c;
     int lines = 1;
     while ((c = getChar()) != EOF) {
-        putCharacter(STDOUT, c);
-        if (c == '\n')
-            lines++;
+        if(c != ERROR){
+            putCharacter(STDOUT, c);
+            if (c == '\n')
+                lines++;
+        }
     }
     printk("\nCantidad de lineas: %d\n", lines);
 }
@@ -114,10 +123,9 @@ void wc(int argc, char ** argv){
 void filter(int argc, char ** argv){
     char c;
     while ((c = getChar()) != EOF) {
-        printk("\nToy aca: %c con valor %d\n", c, (int) c);
-        sysSleep(1);
-        if (!isVowel(c))
+        if(c != ERROR && !isVowel(c)){
             putCharacter(STDOUT, c);
+        }
     }
     putCharacter(STDOUT, '\n');
 }

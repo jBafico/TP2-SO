@@ -38,6 +38,7 @@ int sysPipeRead(int pipeId);
 int sysPipeWrite( int pipeId, char * src);
 void sysYield();
 int sysGetProcessList(processInfo * processStruct);
+void sysGetProcFds(int * fds);
 
 //estructuras para intercambio de informacion
 

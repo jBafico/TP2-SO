@@ -44,7 +44,10 @@ void phyloProblem(int argc, char **argv) {
     printk("\nFor the first %d seconds you will not be able to add philosophers, let them eat.\n\n", PHYLO_WAIT);
 
     char *args[] = {"Phylo Table"};
-    int tablePID = sysAddProcess(&printTable, 1, args, false, NULL);
+    int fds[2];
+    sysGetProcFds(fds);
+
+    int tablePID = sysAddProcess(&printTable, 1, args, false, fds);
 
     sysSleep(PHYLO_WAIT);
 
@@ -112,7 +115,8 @@ static int addPhylo() {
     char index[3];
     itoa(qtyPhylos, index, 10);
 
-    char *argv[] = {"philosopher", index};
+    char *argv[] = {"Philosopher", index};
+
     p->pid = sysAddProcess(&phyloMain, 2, argv, false, NULL);
 
     philosophers[qtyPhylos++] = p;

@@ -6,7 +6,7 @@
 #include <memManager.h>
 #include <pipe.h>
 
-#define PIPESIZE 512
+#define PIPESIZE 4098
 
 typedef struct pipe {
     int id; // id of the pipe
@@ -92,7 +92,13 @@ pipe * createPipe(int pipeId) {
         pipes->first = node;
         pipes->last = node;
         pipes->size = 1;
-    } else {
+    }
+    else if (pipes->size == 0){
+        pipes->first = node;
+        pipes->last = node;
+        pipes->size = 1;
+    }
+    else{
         pipes->last->next = node;
         pipes->last = node;
         pipes->size++;
@@ -110,7 +116,6 @@ int pipeOpen(int pipeId){
             return ERROR;
     }
     p->processesUsing++;
-    pipes->size++;
     return pipeId;
 }
 
@@ -152,6 +157,7 @@ int pipeClose(int pipeId){
 
 int pipeWrite(int pipeId, const char * src){
     pipe * p = getPipe(pipeId);
+
     if (p == NULL)
         return ERROR;
 
@@ -183,17 +189,10 @@ int pipeRead(int pipeId){
 }
 
 int pipeInfo(pipeData * s){
-    if(pipes==NULL){
-        ncPrint("There are no pipes");
-        ncNewline();
+    if(pipes==NULL || pipes->first == NULL)
         return 0;
-    }
+
     pipeNode* current = pipes->first;
-    if (current == NULL) {
-        ncPrint("There are no pipes");
-        ncNewline();
-        return 0;
-    }
 
     int i;
     for (i = 0; i < pipes->size; i++, current = current->next) {
