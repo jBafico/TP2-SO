@@ -83,7 +83,6 @@ void * schedule(void *sp);
 void initializeScheduler();
 int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int foreground, int *fd);
 void wait(int pid);
-int currentProcessIsForeground();
 int getProcessPID();
 int getCurrentProcessOutputFD();
 int getCurrentProcessInputFD();

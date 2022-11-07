@@ -6,11 +6,6 @@
 #ifdef NORMAL
 //Implementation Based on K&R Book
 
-
-
-
-
-
 typedef long Align;     //To align upper limit
 
 
@@ -24,8 +19,7 @@ typedef union header {  //Block Header
 
 } Header;
 
-#define RETRIEVEBYTES(units) ( (units - 1)*(sizeof(Header)) - sizeof(Header) + 1 )
-
+#define RETRIEVEBYTES(units) (((units) - 1)*(sizeof(Header)) - sizeof(Header) + 1 )
 
 memInfo currentMemInfo;
 

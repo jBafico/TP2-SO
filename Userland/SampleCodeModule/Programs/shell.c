@@ -237,7 +237,6 @@ void stopForCommand(){
 
     char strings[AUXVECTORLENGTH][MAX_LEN_COMMAND] = {{0}};
     int argc = parseString(strings , currentLine);
-    bool backgroundFlag = false;
 
     /*
      * Casos posible:
@@ -248,6 +247,7 @@ void stopForCommand(){
     if(argc > 0){
         char * argv[AUXVECTORLENGTH] = {0};
         prepareArgv(argv, strings, argc);
+        bool backgroundFlag = false;
 
         //Pipe functions do not recieve arguments, so format will be "func1 | func2"
         if(strcmp(strings[1],PIPE) == 0)

@@ -74,13 +74,14 @@ void pipeInfo(int argc, char ** argv){
         printk("Pipe ID: %d | Read Status: %s | Write Status: %s | Processes conected: %d\n",
         current.id, current.readState, current.writeState, current.processesUsing);
     }
-
-    printk("\n");
 }
 
 void semInfo(int argc, char ** argv){
     semaphoreData semaphores[MAXSEM];
     int activeSems = sysSemaphoreInfo(semaphores);
+
+    if(activeSems == 0)
+        printk("No active semaphores\n");
 
     for (int i = 0; i < activeSems ; i++){
         semaphoreData current = semaphores[i];
@@ -98,7 +99,6 @@ void semInfo(int argc, char ** argv){
 }
 
 void cat(int argc, char ** argv){
-    printk("In cat bbta\n");
     char c = 0;
     while ((c = getChar()) != EOF) {
         if(c != ERROR)

@@ -27,6 +27,5 @@ int semOpen(uint32_t id, uint64_t initialValue);
 int semWait(uint32_t id);
 int semPost(uint32_t id);
 int semClose(uint32_t id);
-void semStatus();
 int semaphoreInfo(semaphoreData * s);
 #endif //TP2_SO_SEMAPHORES_H

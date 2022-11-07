@@ -8,10 +8,6 @@ void timer_handler() {
 	ticks++;
 }
 
-uint64_t ticks_elapsed(){
-	return ticks;
-}
-
 uint64_t seconds_elapsed() {
 	return ticks / 18;
 }

@@ -202,9 +202,6 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
             return semOpen((uint32_t) arg0, (uint64_t) arg1);
         case SYS_SEM_POST:
             return semPost((uint32_t) arg0);
-        case SYS_SEM_STATUS:
-            semStatus();
-            break;
         case SYS_PIPE_OPEN:
             return pipeOpen((int)arg0);
         case SYS_PIPE_CLOSE:

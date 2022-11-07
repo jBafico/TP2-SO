@@ -12,7 +12,6 @@ static semaphore *createSemaphore(uint32_t id, uint64_t initialValue);
 static void addSemaphoreToList(semaphore *newSem);
 static void unblockSemProcess(semaphore *sem);
 static void removeSemaphore(semaphore *sem);
-static void blockedProcessesDump(int *blockedProcesses, uint16_t blockedProcessesAmount);
 
 int semOpen(uint32_t id, uint64_t initialValue) {
     semaphore *sem= getSemaphore(id);
@@ -80,41 +79,6 @@ int semClose(uint32_t id) {
     return 0;
 }
 
-void semStatus() {
-    ncNewline();
-    ncPrint("Status of active semaphores: ");
-    ncNewline();
-    semaphore *sem = semaphores;
-    while (sem) {
-        ncPrint("    ID: ");
-        ncPrintDec(sem->id);
-        ncNewline();
-        ncPrint("    Value: ");
-        ncPrintDec(sem->value);
-        ncNewline();
-        ncPrint("    N° of Attached processes: ");
-        ncPrintDec(sem->listeningProcesses);
-        ncNewline();
-        ncPrint("    N° of Blocked processes: ");
-        ncPrintDec(sem->blockedProcessesAmount);
-        ncNewline();
-        ncPrint("    Blocked processes: ");
-        ncNewline();
-        blockedProcessesDump(sem->blockedProcesses, sem->blockedProcessesAmount);
-        sem = sem->next;
-    }
-}
-
-static void blockedProcessesDump(int *blockedProcesses,
-                                 uint16_t blockedProcessesAmount) {
-    for (int i = 0; i < blockedProcessesAmount; i++) {
-        ncPrint("    PID: ");
-        ncPrintDec(blockedProcesses[i]);
-        ncNewline();
-    }
-    ncNewline();
-}
-
 static void removeSemaphore(semaphore *sem) {
     semaphore * aux = semaphores;
     if (sem == aux) {
@@ -178,11 +142,6 @@ int semaphoreInfo(semaphoreData * s){
     int i;
     semaphore* current = semaphores;
 
-    if (current == NULL) {
-        ncPrint("I'm NULL buddy");
-        ncNewline();
-    }
-
     for (i = 0; current != NULL; i++, current = current->next){
         s[i].id = current->id;
         s[i].blockedProcessesAmount = current->blockedProcessesAmount;
@@ -191,5 +150,6 @@ int semaphoreInfo(semaphoreData * s){
             s[i].blockedProcesses[j] = current->blockedProcesses[j];
         }
     }
+
     return i;
 }

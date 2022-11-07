@@ -22,7 +22,6 @@ GLOBAL sysSemWait
 GLOBAL sysSemClose
 GLOBAL sysSemOpen
 GLOBAL sysSemPost
-GLOBAL sysSemStatus
 GLOBAL sysPipeOpen
 GLOBAL sysPipeClose
 GLOBAL sysPipeRead
@@ -55,7 +54,6 @@ section .data
     SYSSEMOPEN equ 85
     SYSSEMPOST equ 86
     SYSSEMCLOSE equ 87
-    SYSSEMSTATUS equ 88
     SYSPIPEOPEN equ 89
     SYSPIPECLOSE equ 90
     SYSPIPEWRITE equ 91
@@ -339,18 +337,6 @@ sysSemPost:
     push rbp
     mov rbp, rsp
     mov rax, SYSSEMPOST
-
-    int 80h
-    mov rsp, rbp
-    pop rbp
-    ret
-
-
-;void sysSemStatus();
-sysSemStatus:
-    push rbp
-    mov rbp, rsp
-    mov rax, SYSSEMSTATUS
 
     int 80h
     mov rsp, rbp

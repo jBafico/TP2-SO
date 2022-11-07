@@ -101,14 +101,16 @@ void * schedule(void *stackPointer) {
 
     if (processes->readySize > 0) {
         currentProcess = dequeueProcess(processes);
-        while (currentProcess->proc.state != READY) {
-            if (currentProcess->proc.state == TERMINATED)
-                freeProcess(currentProcess);
+        if(currentProcess != NULL){
+            while (currentProcess->proc.state != READY) {
+                if (currentProcess->proc.state == TERMINATED)
+                    freeProcess(currentProcess);
 
-            if (currentProcess->proc.state == BLOCKED)
-                queueProcess(processes, currentProcess);
+                if (currentProcess->proc.state == BLOCKED)
+                    queueProcess(processes, currentProcess);
 
-            currentProcess = dequeueProcess(processes);
+                currentProcess = dequeueProcess(processes);
+            }
         }
     }
     else
@@ -232,28 +234,18 @@ void killCurrentFGProcess() {
     }
 }
 
-int currentProcessIsForeground() {
-    if (currentProcess) {
-        return currentProcess->proc.foreground;
-    } else {
-        return ERROR;
-    }
-}
-
 int getCurrentProcessInputFD() {
-    if (currentProcess) {
+    if (currentProcess)
         return currentProcess->proc.fds[0];
-    } else {
+    else
         return ERROR;
-    }
 }
 
 int getCurrentProcessOutputFD() {
-    if (currentProcess) {
+    if (currentProcess)
         return currentProcess->proc.fds[1];
-    } else {
+    else
         return ERROR;
-    }
 }
 
 void wait(int pid) {

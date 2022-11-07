@@ -31,7 +31,6 @@ int sysSemWait(uint32_t id);
 int sysSemClose(uint32_t id);
 int sysSemOpen(uint32_t id, uint64_t initialValue);
 int sysSemPost(uint32_t id);
-void sysSemStatus();
 int sysPipeOpen(int pipeId);
 int sysPipeClose(int pipeId);
 int sysPipeRead(int pipeId);
