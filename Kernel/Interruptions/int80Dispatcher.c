@@ -45,6 +45,7 @@ enum sysCalls{  SYS_READ = 0,
                 SYS_YIELD=93,
                 SYS_MEM_INFO = 94,
                 SYS_SEMAPHORE_INFO=95,
+                SYS_PIPE_INFO=96,
                 SYS_TIME = 201,
                 SYS_GETPROCESSLIST = 202};
 
@@ -220,6 +221,8 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
         case SYS_MEM_INFO:
             memoryInformation((memInfo *)arg0);
             break;
+        case SYS_PIPE_INFO:
+            return pipeInfo((pipeData *) arg0);
         case SYS_YIELD:
             yield();
             break;
