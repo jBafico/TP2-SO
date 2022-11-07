@@ -96,18 +96,16 @@ getByte:
     push rbp
     mov rbp, rsp
 
-    mov rax, 0      ; no se si hace falta
+    mov rax, 0
     mov al, [rdi]
 
     mov rsp, rbp
     pop rbp
     ret
 
-;rax, rbx, rcx, rdx, rbp, rsi, rdi, rsp, r8,r9,r10,r11,r12,r13,r14,r15
 prepareRegisters:
-    ;mov [GPRv+x*8], rax
 
-    ;no armamos stackframe para preservar registros e imprimir en momento pedido
+
     mov [GPRv], rax
     mov [GPRv + 1 * 8], rbx
     mov [GPRv + 2 * 8], rcx
@@ -115,7 +113,7 @@ prepareRegisters:
     mov [GPRv + 4 * 8], rbp
     mov [GPRv + 5 * 8], rsi
     mov [GPRv + 6 * 8], rdi
-    mov rax, [rsp+8*18] ;RSP
+    mov rax, [rsp+8*18]
     mov [GPRv + 7 * 8], rax
     mov [GPRv + 8 * 8], r8
     mov [GPRv + 9 * 8], r9
@@ -132,8 +130,8 @@ prepareRegisters:
     ret
 
 restartSCM:
-    call getStackBase	        ; Get thet stack address
-	mov rsp, rax				; Set up the stack with the returned address
+    call getStackBase
+	mov rsp, rax
 	call runSampleCodeModule
 
 forceTimerTick:

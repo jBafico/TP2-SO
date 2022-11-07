@@ -88,9 +88,9 @@ void semInfo(int argc, char ** argv){
         current.id,current.value,(int)current.blockedProcessesAmount,(int)current.listeningProcesses);
 
         if(current.blockedProcessesAmount > 0){
-            printk("Blocked processes:\n");
+            printk("Blocked processes: ");
             for ( int j = 0; j < current.blockedProcessesAmount ; j++){
-                printk("| %d",current.blockedProcesses[j]);
+                printk("%d | ",current.blockedProcesses[j]);
             }
         }
         printk("\n");
@@ -140,3 +140,4 @@ void semNoSyncTest(int argc, char ** argv){
     char * argvv[] = {QTY_LOOPS, "0"};
     semSyncTest(2, argvv);
 }
+

@@ -99,8 +99,7 @@ void free(void *block) {
             if (freeBlock == currentNode || freeBlock == currentNode->data.ptr) {
                 return;
             }
-            //detecto bloque a liberar en memoria, comparo punteros hacia direcciones altas de memoria y me fijo
-            //que el bloque en cuestion este encerrado alli
+
             if (currentNode >= currentNode->data.ptr && (freeBlock > currentNode || freeBlock < currentNode->data.ptr)) {
                 found = true;   //block found
                 break; // Frees start and end of the block

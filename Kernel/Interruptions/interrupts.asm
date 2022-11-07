@@ -179,7 +179,7 @@ picMasterMask:
 picSlaveMask:
 	push    rbp
     mov     rbp, rsp
-    mov     ax, di  ; ax = mascara de 16 bits
+    mov     ax, di
     out	0A1h,al
     pop     rbp
     retn
@@ -196,7 +196,7 @@ _irq01Handler:
     mov rdi, 1 ; pasaje de parametro
     call irqDispatcher
 
-;    call getCtrlFlag
+
     cmp rax, 1
     jne _end
     popState
@@ -209,7 +209,7 @@ _irq01Handler:
     mov [GPRv + 4 * 8], rbp
     mov [GPRv + 5 * 8], rsi
     mov [GPRv + 6 * 8], rdi
-    mov rax, [rsp+8*18] ;RSP
+    mov rax, [rsp+8*18]
     mov [GPRv + 7 * 8], rax
     mov [GPRv + 8 * 8], r8
     mov [GPRv + 9 * 8], r9
@@ -219,20 +219,20 @@ _irq01Handler:
     mov [GPRv + 13 * 8], r13
     mov [GPRv + 14 * 8], r14
     mov [GPRv + 15 * 8], r15
-    mov rax, [rsp+8*15] ;RIP
+    mov rax, [rsp+8*15]
     mov [GPRv + 16 * 8], rax
 
     mov rdi, GPRv
-;    call saveRegisters
+
 _end:
-    ; signal pic EOI (End of Interrupt)
+
     mov al, 20h
     out 20h, al
 
     popState
     iretq
 
-;Cascade pic never called
+;
 _irq02Handler:
 	irqHandlerMaster 2
 
@@ -290,8 +290,8 @@ _timer_tick_handler:
 
     call timer_handler
 
-	mov rdi, rsp ; pasaje de parametro, guardo stack pointer
-	call schedule, ;--> llamar desde aca a nuestro scheduler cuando lo tengamos operativo
+	mov rdi, rsp
+	call schedule,
 	mov rsp, rax
 
 	;signal pic EOI (End of Interrupt)

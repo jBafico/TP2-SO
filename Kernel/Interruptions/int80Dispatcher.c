@@ -21,7 +21,6 @@ enum sysCalls{  SYS_READ = 0,
                 SYS_WRITE = 1,
                 SYS_CLEARSCREEN = 69,
                 SYS_MEM = 70,
-                SYS_REGISTERS = 71,
                 SYS_SLEEP = 72,
                 SYS_MALLOC=74,
                 SYS_FREE=75,
@@ -146,7 +145,6 @@ int sys_mem(uint8_t * mem, uint64_t address){
     if((uint64_t) address > (0x20000000 - 32)) {
         return -1;
     }
-    // cargo en el array mem 32 bytes a partir de address
     for (int i = 0; i < CANTBYTES; i++) {
         mem[i] = getByte(address);
         address++;

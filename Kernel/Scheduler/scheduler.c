@@ -328,23 +328,23 @@ void beginProcessHandler(void (*entryPoint)(int, char **), int argc, char **argv
 static void initalizeDecieveStack(void (*entryPoint)(int, char **), int argc, char **argv, void *stackPointer) {
     decieveStack *fakeStack = (decieveStack *)stackPointer;
 
-    fakeStack->gs = 0x001;
-    fakeStack->fs = 0x002;
-    fakeStack->r15 = 0x003;
-    fakeStack->r14 = 0x004;
-    fakeStack->r13 = 0x005;
-    fakeStack->r12 = 0x006;
-    fakeStack->r11 = 0x007;
-    fakeStack->r10 = 0x008;
-    fakeStack->r9 = 0x009;
-    fakeStack->r8 = 0x00A;
+    fakeStack->gs = 1;
+    fakeStack->fs = 1;
+    fakeStack->r15 = 1;
+    fakeStack->r14 = 1;
+    fakeStack->r13 = 1;
+    fakeStack->r12 = 1;
+    fakeStack->r11 = 1;
+    fakeStack->r10 = 1;
+    fakeStack->r9 = 1;
+    fakeStack->r8 = 1;
     fakeStack->rsi = (uint64_t)argc;
     fakeStack->rdi = (uint64_t)entryPoint;
     fakeStack->basePointer = 0x00B;
     fakeStack->rdx = (uint64_t)argv;
-    fakeStack->rcx = 0x00C;
-    fakeStack->rbx = 0x00D;
-    fakeStack->rax = 0x00E;
+    fakeStack->rcx = 1;
+    fakeStack->rbx = 1;
+    fakeStack->rax = 1;
     fakeStack->rip = (uint64_t)beginProcessHandler;
     fakeStack->cs = 0x008;
     fakeStack->eflags = 0x202;

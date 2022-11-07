@@ -9,7 +9,6 @@
 
 #define MAX_BUFF 512
 
-#define STDIN 0
 #define EOF 96
 
 //Tabla para convertir lo que recibe  y en letra
@@ -110,7 +109,7 @@ void keyboard_handler(){
     uint16_t teclahex = getKey();
     if(teclahex == RSHIFT || teclahex == LSHIFT)
         shiftFlag = true;
-    else if(teclahex == (RSHIFT + RELEASE) || teclahex == (LSHIFT + RELEASE)) //Ambos release shifts del teclado
+    else if(teclahex == (RSHIFT + RELEASE) || teclahex == (LSHIFT + RELEASE))
         shiftFlag = false;
     else if(teclahex == CONTROL)
         ctrlFlag = true;
@@ -137,6 +136,10 @@ void keyboard_handler(){
 char * getBuffer(int * writerVal){
     *writerVal = writer;
     return keyboardBuffer;
+}
+
+uint8_t getCtrlFlag(){
+    return ctrlFlag;
 }
 
 

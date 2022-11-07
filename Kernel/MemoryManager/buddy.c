@@ -27,7 +27,7 @@ typedef struct BNode
 typedef struct memoryManagerCDT
 {
     BNode *root;
-    void *memoryDir; // primera posicion de memoria
+    void *memoryDir;
     void *nextBNodePos;
     size_t memorySize;
     size_t usedSize;

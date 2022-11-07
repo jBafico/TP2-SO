@@ -19,5 +19,6 @@
 void ncClear();
 void keyboard_handler();
 char * getBuffer(int * writerVal);
+uint8_t getCtrlFlag();
 
 #endif //KERNEL_KEYBOARD_H
