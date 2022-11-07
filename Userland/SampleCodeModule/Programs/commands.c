@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <commands.h>
 #include <sysCalls.h>
 #include <library.h>
@@ -62,13 +64,17 @@ void kill(int argc, char ** argv){
 void semInfo(int argc, char ** argv){
     semaphoreData semaphores[MAXSEM];
     int activeSems = sysSemaphoreInfo(semaphores);
-    for ( int i = 0; i < activeSems ; i++){
+
+    for (int i = 0; i < activeSems ; i++){
         semaphoreData current = semaphores[i];
-        printk("Sem ID: %d | Value: %d | Blocked processes: %d | Listening processes %d\n",
+        printk("Sem ID: %d | Value: %d | Qty. blocked processes: %d | Qty. listening processes: %d\n",
         current.id,current.value,(int)current.blockedProcessesAmount,(int)current.listeningProcesses);
-        printk("Blocked processes:\n");
-        for ( int j = 0; j < current.blockedProcessesAmount ; j++){
-            printk("|%d",current.blockedProcesses[j]);
+
+        if(current.blockedProcessesAmount > 0){
+            printk("Blocked processes:\n");
+            for ( int j = 0; j < current.blockedProcessesAmount ; j++){
+                printk("| %d",current.blockedProcesses[j]);
+            }
         }
         printk("\n");
     }
@@ -97,6 +103,8 @@ void wc(int argc, char ** argv){
 void filter(int argc, char ** argv){
     char c;
     while ((c = getChar()) != EOF) {
+        printk("\nToy aca: %c con valor %d\n", c, (int) c);
+        sysSleep(1);
         if (!isVowel(c))
             putCharacter(STDOUT, c);
     }

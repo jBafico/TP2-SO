@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <naiveConsole.h>
 #include <keyboard.h>
@@ -46,19 +48,6 @@ enum sysCalls{  SYS_READ = 0,
                 SYS_TIME = 201,
                 SYS_GETPROCESSLIST = 202};
 
-#define NO_ARG_TASK 1
-typedef void (*noArgPointer)(uint8_t fd);
-typedef struct{
-    noArgPointer function;
-    uint8_t isLoop;
-}noArgTask;
-
-#define ARG_TASK 2
-typedef void (*argPointer)(char * arg, uint8_t fd);
-typedef struct{
-    argPointer function;
-    char * arg1;
-}argTask;
 
 static uint16_t reader = 0;
 

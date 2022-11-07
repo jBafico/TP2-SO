@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <semaphores.h>
 #include <lib.h>
@@ -45,7 +47,7 @@ pipe * getPipe(int pipeID){
 }
 
 pipe * createPipe(int pipeId) {
-    pipe *p;
+    pipe * p;
 
     if ((p = malloc(sizeof(pipe))) == NULL)
         return NULL;
@@ -61,6 +63,7 @@ pipe * createPipe(int pipeId) {
     }
 
     if((p->writeLock = semOpen(currentSemId++, PIPESIZE)) == ERROR){
+        semClose(p->readLock);
         free(p);
         return NULL;
     }
@@ -68,6 +71,8 @@ pipe * createPipe(int pipeId) {
     pipeNode *node;
 
     if((node = malloc(sizeof(pipeNode))) == NULL){
+        semClose(p->readLock);
+        semClose(p->writeLock);
         free(p);
         return NULL;
     }
@@ -77,6 +82,8 @@ pipe * createPipe(int pipeId) {
 
     if (pipes == NULL) {
         if((pipes = malloc(sizeof(pipeList))) == NULL){
+            semClose(p->readLock);
+            semClose(p->writeLock);
             free(p);
             free(node);
             return NULL;
@@ -112,11 +119,13 @@ static void deletePipe(int pipeId){
 
     while(aux != NULL){
         if(aux->p->id == pipeId){
-            if(prev == NULL){
+            if(prev == NULL)
                 pipes->first = aux->next;
-            } else {
+            else
                 prev->next = aux->next;
-            }
+
+            semClose(aux->p->writeLock);
+            semClose(aux->p->readLock);
             free(aux->p);
             free(aux);
             pipes->size--;
