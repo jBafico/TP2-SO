@@ -26,6 +26,8 @@ typedef struct processInfo{
 } processInfo;
 
 typedef struct process{
+    void * allocDir[100];
+    int size;
     int pid;
     int ppid;
     bool foreground;
@@ -95,4 +97,5 @@ int setState(uint64_t pid, pState newState);
 void setPriority(uint64_t pid, int newPriority);
 int getProcessList(processInfo * ps);
 void getProcessFDS(int * fds);
+void registerMemory(void * dir);
 #endif //SCHEDULER_H

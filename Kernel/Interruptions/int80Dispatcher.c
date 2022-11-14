@@ -152,9 +152,12 @@ int sys_mem(uint8_t * mem, uint64_t address){
     return 0;
 }
 
+
 uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
     _sti();
     int FD[]={STDIN, STDOUT};
+    void * resp = NULL;
+
     switch (code) {
         case SYS_READ: //arg0: fd , arg1: buff, arg2: length
             return sys_read( (uint8_t) arg0, (char *) arg1, (uint64_t) arg2);
@@ -172,8 +175,11 @@ uint64_t _int80Dispatcher(uint16_t code, uint64_t arg0, uint64_t arg1, uint64_t 
         case SYS_MEM:
             return (uint64_t) sys_mem((uint8_t *) arg0, (uint64_t) arg1);
         case SYS_MALLOC:
-            return (uint64_t) malloc((uint64_t) arg0);
+            resp = malloc((uint64_t) arg0);
+            registerMemory(resp);
+            return (uint64_t) resp;
         case SYS_FREE:
+            //deleteMemory((void *) arg0);
             free((void*) arg0);
             break;
         case SYS_ADD_PROCESS:

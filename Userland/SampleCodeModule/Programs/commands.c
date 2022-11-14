@@ -33,11 +33,12 @@ void mem(int argc, char ** argv){
 }
 
 void loop(int argc, char ** argv){
-    int pid = sysGetPID();
-    while (1){
-        printk("Hey! I'm process %d. See you again in %d seconds, handsome ;)\n", pid, SECS_LOOP);
-        sysSleep(SECS_LOOP);
-    }
+    sysMalloc(sizeof(int) * 10000);
+//    int pid = sysGetPID();
+//    while (1){
+//        printk("Hey! I'm process %d. See you again in %d seconds, handsome ;)\n", pid, SECS_LOOP);
+//        sysSleep(SECS_LOOP);
+//    }
 }
 
 void nice(int argc, char ** argv){

@@ -27,6 +27,10 @@ static processNode *baseProcess; //This is the process that will be running when
 
 int queueIsEmpty(processList *prcs) { return prcs->size == 0; }
 
+void registerMemory(void * dir){
+    currentProcess->proc.allocDir[currentProcess->proc.size++] = dir;
+}
+
 void queueProcess(processList *prcs, processNode *process) {
     if (queueIsEmpty(prcs)) {
         prcs->first = process;
@@ -75,6 +79,7 @@ void initializeScheduler() {
 
     baseProcess = dequeueProcess(processes);
 }
+
 
 void * schedule(void *stackPointer) {
     if (currentProcess != NULL) {
@@ -160,11 +165,15 @@ int addProcess(void (*entryPoint)(int, char **), int argc, char **argv, int fore
     return newProcess->proc.pid;
 }
 
+
+
 int killProcess(uint64_t pid) {
     //Shell and base process cannot be killed
     if(pid <= 2)
         return ERROR;
 
+
+    //releaseMem(pid)
     int resPID = setState(pid, TERMINATED);
 
     if (pid == currentProcess->proc.pid)
@@ -267,6 +276,7 @@ static uint64_t getPID() { return currentPID++; }
 static int initializeProcessControlBlock(process *proc, char *name, uint8_t foreground, const int *fd) {
     strcpy(proc->name, name);
     proc->pid = getPID();
+    proc->size = 0;
     proc->ppid = (currentProcess == NULL ? 0 : currentProcess->proc.pid);
     if (foreground > 1) {
         return ERROR;
@@ -365,11 +375,17 @@ static void freeProcess(processNode *p) {
         for (int i = 0; i < p->proc.argc; i++) {
             free(p->proc.argv[i]);
         }
+        for (int i = 0; i < p->proc.size; ++i) {
+            free(p->proc.allocDir[i]);
+        }
         free(p->proc.returnDir);
         free(p->proc.argv);
         free((void *)p);
     }
 }
+
+
+
 
 int getProcessList(processInfo * ps) {
     processNode *current = processes->first;
